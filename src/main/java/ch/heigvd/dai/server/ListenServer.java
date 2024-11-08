@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.LinkedList;
 
-public class Server {
+public class ListenServer {
     private static LinkedList<Player> players = new LinkedList<>();
     public static void run(final int PORT, final int MAX_GAMES){
         System.out.println("[SERVEUR] : Starting");
