@@ -1,4 +1,57 @@
 package ch.heigvd.dai.gameclass;
 
-class Player {
+import ch.heigvd.dai.server.GameManager;
+
+import java.io.*;
+import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+
+public class Player extends Thread{
+    private final Socket socket;
+    private BufferedWriter out;
+    private BufferedReader in;
+    private final GameManager manager;
+    private boolean stopRequested;
+    private final Object outMutex = new Object();
+
+    public Player(Socket socket, GameManager manager) throws IOException{
+        this.socket = socket;
+        this.manager = manager;
+        InputStreamReader isr = new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8);
+        OutputStreamWriter osw = new OutputStreamWriter(socket.getOutputStream(),StandardCharsets.UTF_8);
+        in = new BufferedReader(isr);
+        out = new BufferedWriter(osw);
+        start();
+    }
+
+    public void requestStop(){stopRequested = true;}
+
+    public boolean isDone(){return !socket.isConnected() || socket.isClosed();}
+
+    void send(String message) throws IOException{
+        synchronized (outMutex){
+            out.write(message);
+        }
+    }
+
+    public void run(){
+        System.out.printf("[Player@%s] : Connected %n",socket.getInetAddress());
+
+        if(! manager.request(this)){
+            System.err.printf("[Player@%s] : Game manager refused game request %n",socket.getInetAddress());
+            return;
+        }
+
+        while(! stopRequested){
+            //main read - answer loop
+        }
+
+        try{
+            socket.close();
+        }catch (IOException e){
+            System.out.println(e.getMessage());
+        }
+        System.out.printf("[Player@%s] : Disconnected %n",socket.getInetAddress());
+    }
+
 }
