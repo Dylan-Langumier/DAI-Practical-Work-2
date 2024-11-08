@@ -14,6 +14,10 @@ public class Board {
     this.height = height;
   }
 
+  public Board(){
+    this(10,10);
+  }
+
   int letterToOrdinal(char letter) {
     char upper = Character.toUpperCase(letter);
     if(upper < 'A' || upper > 'Z')
