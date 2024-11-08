@@ -14,22 +14,8 @@ public class Board {
     this.height = height;
   }
 
-  public Board() {
-    this(10, 10);
-  }
-
-  public boolean place(ShipType ship, char x, int y, ORIENTATION orientation ){
-    for(int i = 0; i < ship.getSize(); ++i){
-      Cell cell = switch (orientation){
-        case TOP -> getCell(x,(y + i));
-        case BOTTOM -> getCell(x,(y - i));
-        case RIGHT -> getCell((char)(x + i),y);
-        case LEFT -> getCell((char)(x - i), y);
-      };
-      if(cell.getShipType() != ShipType.NONE)
-        return false;
-    }
-    return true;
+  public Board(){
+    this(10,10);
   }
 
   int letterToOrdinal(char letter) {
