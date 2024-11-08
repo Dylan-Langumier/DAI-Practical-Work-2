@@ -1,39 +1,59 @@
 package ch.heigvd.dai.server;
 
-import ch.heigvd.dai.gameclass.ServerPlayer;
+import ch.heigvd.dai.gameclass.Player;
+import ch.heigvd.dai.gameclass.Game;
 
 import java.util.ArrayDeque;
+import java.util.Queue;
 
-public class GameManager {
-  ArrayDeque<ServerPlayer> waiting = new ArrayDeque<>();
-  private final Object mutex = new Object();
+public class GameManager extends Thread{
+    private int maxGames;
+    private boolean stopRequested = false;
+    ArrayDeque<Player> waiting = new ArrayDeque<>();
+    final private Object mutex = new Object();
 
-  public GameManager() {}
-
-  public boolean request(ServerPlayer serverPlayer) {
-    synchronized (mutex) {
-      if (waiting.contains(serverPlayer)) return false;
-      waiting.push(serverPlayer);
+    public GameManager(final int MAX_GAMES){
+        maxGames = MAX_GAMES;
+        start();
     }
-    tryToStartGame();
-    return true;
-  }
 
-  private void tryToStartGame(){
-    synchronized (mutex) {
-      if (waiting.size() >= 2) {
-        ServerPlayer p1 = waiting.pop();
-        ServerPlayer p2 = waiting.pop();
-        p1.startGameWith(p2);
-        p2.startGameWith(p1);
-        p1.start();
-      }
-    }
-  }
+    public void requestStop(){stopRequested = true;}
 
-  public void cancel(ServerPlayer serverPlayer) {
-    synchronized (mutex) {
-      waiting.remove(serverPlayer);
+    public boolean request(Player player){
+        synchronized (mutex){
+            if(waiting.contains(player))
+                return false;
+            waiting.push(player);
+        }
+        return true;
     }
-  }
+
+    public void cancel(Player player){
+        synchronized (mutex) {
+            waiting.remove(player);
+        }
+    }
+
+    public void run(){
+        System.out.println("Starting Game manager");
+        while(! stopRequested){
+            if(waiting.size() < 2){
+                try {
+                    sleep(500);
+                } catch (InterruptedException e) {
+                    System.err.println("[GameManager]¨" + e.getMessage());
+                }
+                continue;
+            }
+            synchronized (mutex){
+                if(waiting.size() < 2)
+                    continue;
+
+                Game newGame = new Game(waiting.pop(),waiting.pop());
+            }
+            System.out.println("[GameManager] : new game started");
+        }
+        System.out.println("Game Manager stops");
+    }
+
 }
