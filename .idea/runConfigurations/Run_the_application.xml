@@ -2,8 +2,8 @@
   <configuration default="false" name="Run the application" type="Application" factoryName="Application">
     <option name="ALTERNATIVE_JRE_PATH" value="temurin-21" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-    <option name="MAIN_CLASS_NAME" value="ch.dl.dai.Main" />
-    <module name="DAI-filters" />
+    <option name="MAIN_CLASS_NAME" value="ch.heigvd.dai.Main" />
+    <module name="java-tcp-programming" />
     <option name="PROGRAM_PARAMETERS" value="--help" />
     <method v="2">
       <option name="Make" enabled="true" />
