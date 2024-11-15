@@ -14,8 +14,8 @@ public class Board {
     this.height = height;
   }
 
-  public Board(){
-    this(10,10);
+  public Board() {
+    this(10, 10);
   }
 
   int letterToOrdinal(char letter) {

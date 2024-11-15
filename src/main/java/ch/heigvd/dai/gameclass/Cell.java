@@ -17,6 +17,10 @@ class Cell {
     return type;
   }
 
+  protected int getShipLength() {
+    return type.ordinal();
+  }
+
   protected boolean isHit() {
     return isHit;
   }
