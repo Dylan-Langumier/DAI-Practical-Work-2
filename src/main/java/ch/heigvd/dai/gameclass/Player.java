@@ -25,7 +25,6 @@ public class Player extends Thread {
         new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
     in = new BufferedReader(isr);
     out = new BufferedWriter(osw);
-    start();
   }
 
   public void requestStop() {

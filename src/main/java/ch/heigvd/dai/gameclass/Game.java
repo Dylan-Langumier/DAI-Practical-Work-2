@@ -13,11 +13,10 @@ public class Game extends Thread {
     boards = new Board[] {new Board(), new Board(), new Board(), new Board()};
     players = new Player[] {p1, p2};
     turn = 0;
-    start();
   }
 
   public void run() {
-    System.out.println("[Server] : new game has started");
+    System.out.println("[Game] : A new game has started");
 
     // tell both players the game has been started
 
