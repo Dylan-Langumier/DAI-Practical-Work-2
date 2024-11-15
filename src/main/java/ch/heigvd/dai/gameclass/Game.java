@@ -3,9 +3,9 @@ package ch.heigvd.dai.gameclass;
 import java.io.IOException;
 
 public class Game extends Thread {
-  private Board[] boards;
-  private Player[] players;
-  private Integer turn;
+  final private Board[] boards;
+  final private Player[] players;
+  final private Integer turn;
   private final int ATTEMPTS_AMOUNT = 10;
   private final int ATTEMPT_TIMEOUT = 1000;
 
