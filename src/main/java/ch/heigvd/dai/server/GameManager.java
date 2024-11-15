@@ -6,16 +6,13 @@ import java.util.ArrayDeque;
 import java.util.concurrent.ExecutorService;
 
 public class GameManager extends Thread {
-  private int maxGames;
   private boolean stopRequested = false;
   ArrayDeque<Player> waiting = new ArrayDeque<>();
   private final Object mutex = new Object();
   ExecutorService executor;
 
-  public GameManager(final int MAX_GAMES, ExecutorService executor) {
-    maxGames = MAX_GAMES;
+  public GameManager(ExecutorService executor) {
     this.executor = executor;
-    start();
   }
 
   public void requestStop() {
