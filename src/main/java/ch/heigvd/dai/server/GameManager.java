@@ -1,59 +1,59 @@
 package ch.heigvd.dai.server;
 
-import ch.heigvd.dai.gameclass.Player;
 import ch.heigvd.dai.gameclass.Game;
-
+import ch.heigvd.dai.gameclass.Player;
 import java.util.ArrayDeque;
-import java.util.Queue;
+import java.util.concurrent.ExecutorService;
 
-public class GameManager extends Thread{
-    private int maxGames;
-    private boolean stopRequested = false;
-    ArrayDeque<Player> waiting = new ArrayDeque<>();
-    final private Object mutex = new Object();
+public class GameManager extends Thread {
+  private int maxGames;
+  private boolean stopRequested = false;
+  ArrayDeque<Player> waiting = new ArrayDeque<>();
+  private final Object mutex = new Object();
+  ExecutorService executor;
 
-    public GameManager(final int MAX_GAMES){
-        maxGames = MAX_GAMES;
-        start();
+  public GameManager(final int MAX_GAMES, ExecutorService executor) {
+    maxGames = MAX_GAMES;
+    this.executor = executor;
+    start();
+  }
+
+  public void requestStop() {
+    stopRequested = true;
+  }
+
+  public boolean request(Player player) {
+    synchronized (mutex) {
+      if (waiting.contains(player)) return false;
+      waiting.push(player);
     }
+    return true;
+  }
 
-    public void requestStop(){stopRequested = true;}
+  public void cancel(Player player) {
+    synchronized (mutex) {
+      waiting.remove(player);
+    }
+  }
 
-    public boolean request(Player player){
-        synchronized (mutex){
-            if(waiting.contains(player))
-                return false;
-            waiting.push(player);
+  public void run() {
+    System.out.println("Starting Game manager");
+    while (!stopRequested) {
+      if (waiting.size() < 2) {
+        try {
+          sleep(500);
+        } catch (InterruptedException e) {
+          System.err.println("[GameManager]¨" + e.getMessage());
         }
-        return true;
+        continue;
+      }
+      synchronized (mutex) {
+        if (waiting.size() < 2) continue;
+
+        executor.submit(new Game(waiting.pop(), waiting.pop()));
+      }
+      System.out.println("[GameManager] : new game started");
     }
-
-    public void cancel(Player player){
-        synchronized (mutex) {
-            waiting.remove(player);
-        }
-    }
-
-    public void run(){
-        System.out.println("Starting Game manager");
-        while(! stopRequested){
-            if(waiting.size() < 2){
-                try {
-                    sleep(500);
-                } catch (InterruptedException e) {
-                    System.err.println("[GameManager]¨" + e.getMessage());
-                }
-                continue;
-            }
-            synchronized (mutex){
-                if(waiting.size() < 2)
-                    continue;
-
-                Game newGame = new Game(waiting.pop(),waiting.pop());
-            }
-            System.out.println("[GameManager] : new game started");
-        }
-        System.out.println("Game Manager stops");
-    }
-
+    System.out.println("Game Manager stops");
+  }
 }

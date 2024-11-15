@@ -27,7 +27,7 @@ class Cell {
   protected SHIP_TYPE getShipType() {
     return type;
   }
-  
+
   protected int getShipLength() {
     return type.ordinal();
   }

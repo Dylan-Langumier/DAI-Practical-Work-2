@@ -14,7 +14,7 @@
           <execution>
             <phase>package</phase>
             <goals>
-              <goal>apply</goal>
+              <goal>check</goal>
             </goals>
           </execution>
         </executions>

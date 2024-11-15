@@ -1,5 +1,6 @@
 package ch.heigvd.dai.commands;
 
+import ch.heigvd.dai.client.ClientRunnable;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
 
@@ -20,7 +21,7 @@ public class Client implements Callable<Integer> {
 
   @Override
   public Integer call() {
-    throw new UnsupportedOperationException(
-        "Please remove this exception and implement this method.");
+    ClientRunnable.run(port, host);
+    return 0;
   }
 }
