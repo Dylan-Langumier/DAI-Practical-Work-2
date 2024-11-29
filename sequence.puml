@@ -1,0 +1,86 @@
+@startuml functional-example
+
+title "Functional example"
+
+participant "Player 1" as p1
+participant "Server" as s
+participant "Player 2" as p2
+
+== Initial Connection ==
+
+note over p1, p2
+The socket is instantiated and the connection is
+automatically established.
+end note
+
+p1->s : Establish connection
+p1<-->s : Connection established
+
+p2->s : Establish connection
+p2<-->s : Connection established
+
+== Player name themselves ==
+
+p1->s: JOIN alice
+s->p1: OK
+
+p2->s: JOIN bob
+s->p2: OK
+
+== Request a game ==
+
+p1->s: REQUEST_GAME <positions of ship, 0 means "no boat">
+s->p1: OK
+
+p2->s: REQUEST_GAME <positions of ship, 0 means "no boat">
+s->p2: OK
+
+s->p1: GAME_STARTED
+s->p2: GAME_STARTED
+
+== Game start ==
+note over p1, p2
+Once the server sent the GAME_STARTED messages, it chooses a
+random player to start. Let's assume Player 1 in our case.
+end note
+
+s->p1: YOUR_TURN
+p1->s: PLAY A, 10
+s->p1: FEEDBACK miss
+
+s->p2: YOUR_TURN A, 10
+p2->s: PLAY E, 5
+s->p2: FEEDBACK miss
+
+s->p1: YOUR_TURN E, 5
+p1->s: PLAY A, 10
+s->p1: ERROR "space already hit"
+s->p1: YOUR_TURN A, 10
+p1->s: PLAY Z, 26
+s->p1: ERROR "out of the board"
+s->p1: YOUR_TURN A, 10
+
+== All ships hit ==
+s->p2: YOUR_TURN A, 10 (player 1 is not very smart)
+p2->s: PLAY D, 3
+s->p2: FEEDBACK hit
+s->p2: GAME_OVER Won
+s->p1: GAME_OVER Lost
+
+== Quit ==
+note over p1, p2
+Just as for the connection establishment, no
+formal message is sent to the server when
+disconnecting.
+
+The socket is closed by the client and the
+connection is automatically closed.
+end note
+
+p1->p1: Close the connection
+p1<-->s: The connection is closed
+
+p2->p2: Close the connection
+p2<-->s: The connection is closed
+
+@enduml

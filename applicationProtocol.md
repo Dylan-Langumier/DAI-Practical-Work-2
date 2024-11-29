@@ -7,7 +7,6 @@ This protocol supports a simple multiplayer only Battleship game over the networ
 It will therefor send the board to the player for the client to render. However, the "estimation" of the opponent's board is handled by  the client.
 
 
-
 ### Transport protocol
 We are going to be using TCP over IP, sending text information.
 Port 42069 is going to be used by default but it can be configured at launch. Messages separated by end of line characters.
@@ -17,7 +16,7 @@ the clients initiates and close the communication.
 REQUEST_GAME:\<board>  
 OK   
 GAME_STARTED  
-YOUR_TURN:\<board>  
+YOUR_TURN:\<position>  
 PLAY:\<position>  
 ERROR:\<message>  
 FEEDBACK:\<hit/miss>  
