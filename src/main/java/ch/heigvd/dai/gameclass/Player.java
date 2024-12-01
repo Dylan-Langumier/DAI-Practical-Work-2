@@ -5,45 +5,44 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
-public class Player extends Thread {
+public class Player implements Runnable {
+  final private String DELIMITER = ":";
   private final Socket socket;
   private BufferedWriter out;
   private BufferedReader in;
   private final GameManager manager;
   private boolean stopRequested;
+  private String name;
 
-  private boolean hasAnswered;
-  private String answer;
+  private boolean mustPlay, isReady, hasPlayed;
 
-  private final Object outMutex = new Object();
+  private Board board, enemyBoard;
 
-  public Player(Socket socket, GameManager manager) throws IOException {
+  public Player(Socket socket, GameManager manager) {
     this.socket = socket;
     this.manager = manager;
-    InputStreamReader isr = new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8);
-    OutputStreamWriter osw =
-        new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
-    in = new BufferedReader(isr);
-    out = new BufferedWriter(osw);
-  }
-
-  public void requestStop() {
-    stopRequested = true;
-  }
-
-  public boolean isDone() {
-    return !socket.isConnected() || socket.isClosed();
-  }
-
-  void send(String message) throws IOException {
-    synchronized (outMutex) {
-      out.write(message);
+    try(InputStreamReader isr = new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8);
+        OutputStreamWriter osw =
+                new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)) {
+      in = new BufferedReader(isr);
+      out = new BufferedWriter(osw);
+    }catch (IOException e){
+      System.err.println(e.getMessage());
     }
   }
 
-  String poll() {
-    if (!hasAnswered) return null;
-    return answer;
+  public Board getBoard(){return board;}
+
+  public void setEnemyBoard(Board enemyBoard){this.enemyBoard = enemyBoard;}
+
+  public String getName(){return name;}
+
+  public void requestStop() {stopRequested = true;}
+
+  public void giveTurn(){mustPlay = true;}
+
+  public boolean isDone() {
+    return !socket.isConnected() || socket.isClosed();
   }
 
   public void run() {
@@ -55,14 +54,24 @@ public class Player extends Thread {
       return;
     }
 
-    while (!stopRequested) {
-      hasAnswered = false;
-      try {
-        answer = in.readLine();
-      } catch (IOException e) {
-        System.err.println("[Player] : " + e.getMessage());
+    while(!stopRequested){
+
+      // wait for join
+      try{
+        waitForJoin();
+      }catch (IOException e){
+        System.err.println("[Server] : " + e.getMessage());
+        break;
       }
-      hasAnswered = true;
+
+      // populate board
+
+      // play
+      try{
+        play();
+      }catch (IOException e){
+        System.err.println("[Server] : " + e.getMessage());
+      }
     }
 
     try {
@@ -71,5 +80,59 @@ public class Player extends Thread {
       System.out.println(e.getMessage());
     }
     System.out.printf("[Player@%s] : Disconnected %n", socket.getInetAddress());
+  }
+
+  private void play() throws IOException{
+    while(true){
+      if(!mustPlay){
+        try {
+          Thread.sleep(100);
+        }catch(InterruptedException e){
+          System.err.println("[Server] : " + e.getMessage());
+        }
+        continue;
+      }
+      String[] message = in.readLine().splitWithDelimiters(DELIMITER,0);
+      if(!message[0].equals("JOIN") || message.length != 3) {
+        System.err.println("[Server] : player must play with PLAY:<x>:<y>");
+        continue;
+      }
+      char x = message[1].charAt(0);
+      int y = Integer.parseInt(message[2]);
+      Cell cell = enemyBoard.getCell(x,y);
+      if(cell.isHit()){
+        out.write("ERROR");
+        continue;
+      }
+      cell.hit();
+      mustPlay = false;
+      hasPlayed = true;
+
+      if(cell.getShipType() == ShipType.NONE){
+        out.write("MISS");
+        continue;
+      }
+
+      out.write("HIT");
+
+      if(enemyBoard.allShipsSank()){
+        // victory
+      }
+    }
+  }
+
+  private void waitForJoin() throws IOException{
+    int attempts = 10;
+    while(attempts > 0){
+      --attempts;
+      String[] message = in.readLine().splitWithDelimiters(DELIMITER,0);
+      if(!message[0].equals("JOIN") || message.length != 2) {
+        System.err.println("[Server] : player must start with JOIN:<name>");
+        continue;
+      }
+      name = message[1];
+      return;
+    }
+    throw new IOException("Too many mistakes");
   }
 }
