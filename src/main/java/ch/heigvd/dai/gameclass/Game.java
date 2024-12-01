@@ -3,14 +3,15 @@ package ch.heigvd.dai.gameclass;
 import java.io.IOException;
 
 public class Game extends Thread {
-  final private Board[] boards;
+
   final private Player[] players;
-  final private Integer turn;
-  private final int ATTEMPTS_AMOUNT = 10;
+  private int turn;
+  private final int ATTEMPTS_AMOUNT = 30;
   private final int ATTEMPT_TIMEOUT = 1000;
 
+  private boolean gameOver = false;
+
   public Game(Player p1, Player p2) {
-    boards = new Board[] {new Board(), new Board(), new Board(), new Board()};
     players = new Player[] {p1, p2};
     turn = 0;
   }
@@ -18,46 +19,29 @@ public class Game extends Thread {
   public void run() {
     System.out.println("[Game] : A new game has started");
 
-    // tell both players the game has been started
+    while(!gameOver){
 
-    while (true) {
-      // ask player to play
-      try {
-        players[turn].send("YOUR_TURN");
-      } catch (IOException e) {
-        System.err.println("[Game] : " + e.getMessage());
-      }
+      players[turn].giveTurn();
 
-      // waits for an answer, with a time limit
-      String answer = null;
-      for (int i = 0; i < ATTEMPTS_AMOUNT; ++i) {
+      for(int attempts = 0; attempts < ATTEMPTS_AMOUNT; ++attempts){
         try {
-          sleep(ATTEMPT_TIMEOUT);
-        } catch (InterruptedException e) {
-          System.err.println("[Game] " + e.getMessage());
+          Thread.sleep(ATTEMPT_TIMEOUT);
+        } catch(InterruptedException e){
+          System.out.println("[Server] : " + e.getMessage());
         }
 
-        answer = players[turn].poll();
-        if (answer != null) break;
+        //players[turn]
+
+        ++attempts;
       }
 
-      if (answer == null) {
-        next(turn);
-        continue;
-      }
-
-      if (verifyMove()) next(turn);
+      turn = next(turn);
     }
 
-    // System.out.println("[Server] : game ended");
+    System.out.println("[Server] : game ended");
   }
 
-  private void next(Integer turn) {
-    turn = (turn + 1) % 2;
-  }
-
-  private boolean verifyMove() {
-    /// TODO: game logic
-    return true;
+  private int next(int turn) {
+    return (turn + 1) % 2;
   }
 }
