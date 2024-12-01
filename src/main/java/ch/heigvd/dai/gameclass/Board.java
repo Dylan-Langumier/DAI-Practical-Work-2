@@ -18,6 +18,20 @@ public class Board {
     this(10, 10);
   }
 
+  public boolean place(ShipType ship, char x, int y, ORIENTATION orientation ){
+    for(int i = 0; i < ship.getSize(); ++i){
+      Cell cell = switch (orientation){
+        case TOP -> getCell(x,(y + i));
+        case BOTTOM -> getCell(x,(y - i));
+        case RIGHT -> getCell((char)(x + i),y);
+        case LEFT -> getCell((char)(x - i), y);
+      };
+      if(cell.getShipType() != ShipType.NONE)
+        return false;
+    }
+    return true;
+  }
+
   int letterToOrdinal(char letter) {
     char upper = Character.toUpperCase(letter);
     if (upper < 'A' || upper > 'Z')
@@ -29,5 +43,15 @@ public class Board {
     int x = letterToOrdinal(letter);
     if (x < 0 || y < 0 || x >= width || y >= height) throw new IndexOutOfBoundsException();
     return cells[x][y];
+  }
+
+  boolean allShipsSank(){
+    for(int x = 0; x < width; ++x){
+      for(int y = 0; y < height; ++y){
+        if(cells[x][y].getShipType() != ShipType.NONE && !cells[x][y].isHit())
+          return false;
+      }
+    }
+    return true;
   }
 }
