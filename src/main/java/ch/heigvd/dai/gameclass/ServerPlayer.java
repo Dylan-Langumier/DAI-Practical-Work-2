@@ -23,6 +23,10 @@ public class ServerPlayer extends BasePlayer {
     mustPlay = true;
   }
 
+  public void start(){
+    mustPlay = true;
+  }
+
   public void startGameWith(ServerPlayer adversary){
     this.adversary = adversary;
     adversary.setEnemyBoard(board);
