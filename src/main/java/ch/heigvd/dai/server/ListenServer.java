@@ -12,8 +12,7 @@ public class ListenServer {
 
     try (ServerSocket serverSocket = new ServerSocket(PORT);
         ExecutorService executor = Executors.newFixedThreadPool(MAX_GAMES * 3)) {
-      final GameManager manager = new GameManager(executor);
-      executor.submit(manager);
+      final GameManager manager = new GameManager();
       while (true) {
         executor.submit(new Player(serverSocket.accept(), manager));
       }
