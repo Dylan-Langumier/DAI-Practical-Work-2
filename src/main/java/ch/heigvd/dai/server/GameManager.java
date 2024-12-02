@@ -1,19 +1,19 @@
 package ch.heigvd.dai.server;
 
-import ch.heigvd.dai.gameclass.Player;
+import ch.heigvd.dai.gameclass.ServerPlayer;
+
 import java.util.ArrayDeque;
-import java.util.concurrent.ExecutorService;
 
 public class GameManager {
-  ArrayDeque<Player> waiting = new ArrayDeque<>();
+  ArrayDeque<ServerPlayer> waiting = new ArrayDeque<>();
   private final Object mutex = new Object();
 
   public GameManager() {}
 
-  public boolean request(Player player) {
+  public boolean request(ServerPlayer serverPlayer) {
     synchronized (mutex) {
-      if (waiting.contains(player)) return false;
-      waiting.push(player);
+      if (waiting.contains(serverPlayer)) return false;
+      waiting.push(serverPlayer);
     }
     tryToStartGame();
     return true;
@@ -22,8 +22,8 @@ public class GameManager {
   private void tryToStartGame(){
     synchronized (mutex) {
       if (waiting.size() >= 2) {
-        Player p1 = waiting.pop();
-        Player p2 = waiting.pop();
+        ServerPlayer p1 = waiting.pop();
+        ServerPlayer p2 = waiting.pop();
         p1.startGameWith(p2);
         p2.startGameWith(p1);
         p1.giveTurn();
@@ -31,9 +31,9 @@ public class GameManager {
     }
   }
 
-  public void cancel(Player player) {
+  public void cancel(ServerPlayer serverPlayer) {
     synchronized (mutex) {
-      waiting.remove(player);
+      waiting.remove(serverPlayer);
     }
   }
 }

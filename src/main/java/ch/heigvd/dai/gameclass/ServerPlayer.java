@@ -3,44 +3,24 @@ package ch.heigvd.dai.gameclass;
 import ch.heigvd.dai.server.GameManager;
 import java.io.*;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 
-public class Player implements Runnable {
-  private final Socket socket;
-  private BufferedWriter out;
-  private BufferedReader in;
+public class ServerPlayer extends BasePlayer {
   private final GameManager manager;
-  private boolean stopRequested;
-  private String name;
 
-  private boolean mustPlay = false,
-                  gameOver = false;
-  private Board board,
-                enemyBoard;
-  private Player adversary;
+  private ServerPlayer adversary;
 
-  public Player(Socket socket, GameManager manager) {
-    this.socket = socket;
+  public ServerPlayer(Socket socket, GameManager manager) {
+    super(socket);
     this.manager = manager;
-    try(InputStreamReader isr = new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8);
-        OutputStreamWriter osw =
-                new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)) {
-      in = new BufferedReader(isr);
-      out = new BufferedWriter(osw);
-    }catch (IOException e){
-      System.err.println(e.getMessage());
-    }
   }
 
   public void setEnemyBoard(Board enemyBoard){this.enemyBoard = enemyBoard;}
-
-  public String getName(){return name;}
 
   public void requestStop() {stopRequested = true;}
 
   public void giveTurn(){mustPlay = true;}
 
-  public void startGameWith(Player adversary){
+  public void startGameWith(ServerPlayer adversary){
     this.adversary = adversary;
     adversary.setEnemyBoard(board);
   }
@@ -49,16 +29,6 @@ public class Player implements Runnable {
     gameOver = true;
     System.out.printf("%s sank all your ships and won the game. You suck.", adversary.getName());
     adversary = null;
-  }
-  
-  private void send(String message) throws IOException{
-    out.write(message);
-    out.newLine();
-    out.flush();
-  }
-
-  private String[] receive() throws IOException{
-    return in.readLine().splitWithDelimiters(":",0);
   }
 
   public void run() {
