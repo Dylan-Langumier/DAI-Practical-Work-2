@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
-public abstract class BasePlayer implements Runnable{
+public abstract class BasePlayer{
     protected final Socket socket;
     private BufferedWriter out;
     private BufferedReader in;

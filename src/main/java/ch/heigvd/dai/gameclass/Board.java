@@ -18,7 +18,7 @@ public class Board {
     this(10, 10);
   }
 
-  public boolean place(ShipType ship, char x, int y, ORIENTATION orientation ){
+  public boolean place(ShipType ship, char x, int y, Orientation orientation ){
     for(int i = 0; i < ship.getSize(); ++i){
       Cell cell = switch (orientation){
         case TOP -> getCell(x,(y + i));
@@ -53,5 +53,26 @@ public class Board {
       }
     }
     return true;
+  }
+
+  public String toString(){
+    StringBuilder str = new StringBuilder();
+    // number header
+    str.append(' '); // space for letters
+    for(int y = 1; y <= height; ++y){
+      str.append(' ').append(y);
+    }
+    str.append('\n');
+
+    // content
+    for(int i = 0; i < width; ++i){
+      char x = (char)('A' + i);
+      str.append(x);
+      for(int y = 1; y <= height; ++y){
+        str.append(' ').append(getCell(x,y).getShipType().getSize());
+      }
+      str.append('\n');
+    }
+    return str.toString();
   }
 }

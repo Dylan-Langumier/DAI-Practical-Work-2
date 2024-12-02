@@ -4,7 +4,7 @@ import ch.heigvd.dai.server.GameManager;
 import java.io.*;
 import java.net.Socket;
 
-public class ServerPlayer extends BasePlayer {
+public class ServerPlayer extends BasePlayer implements Runnable{
   private final GameManager manager;
 
   private ServerPlayer adversary;
@@ -148,7 +148,7 @@ public class ServerPlayer extends BasePlayer {
         ShipType shipType = ShipType.valueOf(message[1]);
         char x = message[2].charAt(0);
         int y = Integer.parseInt(message[3]);
-        ORIENTATION orientation = ORIENTATION.valueOf(message[4]);
+        Orientation orientation = Orientation.valueOf(message[4]);
 
         if(!board.place(shipType,x,y,orientation)){
           System.err.println("[Server] : Invalid placement");
