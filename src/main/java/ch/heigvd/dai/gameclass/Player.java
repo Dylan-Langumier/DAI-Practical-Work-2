@@ -14,9 +14,10 @@ public class Player implements Runnable {
   private boolean stopRequested;
   private String name;
 
-  private boolean mustPlay, isReady, hasPlayed;
+  private boolean mustPlay, hasPlayed;
 
   private Board board, enemyBoard;
+  private Player adversary;
 
   public Player(Socket socket, GameManager manager) {
     this.socket = socket;
@@ -45,14 +46,12 @@ public class Player implements Runnable {
     return !socket.isConnected() || socket.isClosed();
   }
 
+  public void startGameWith(Player adversary){
+    this.adversary = adversary;
+  }
+
   public void run() {
     System.out.printf("[Player@%s] : Connected %n", socket.getInetAddress());
-
-    if (!manager.request(this)) {
-      System.err.printf(
-          "[Player@%s] : Game manager refused game request %n", socket.getInetAddress());
-      return;
-    }
 
     while(!stopRequested){
 
@@ -65,6 +64,15 @@ public class Player implements Runnable {
       }
 
       // populate board
+
+
+      // request a game with another player
+      if (!manager.request(this)) {
+        System.err.printf(
+                "[Player@%s] : Game manager refused game request \n", socket.getInetAddress());
+        return;
+      }
+      System.out.printf("[Player@%s] : Game requested successfully \n", socket.getInetAddress());
 
       // play
       try{
