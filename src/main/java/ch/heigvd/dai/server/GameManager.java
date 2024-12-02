@@ -26,7 +26,7 @@ public class GameManager {
         ServerPlayer p2 = waiting.pop();
         p1.startGameWith(p2);
         p2.startGameWith(p1);
-        p1.giveTurn();
+        p1.start();
       }
     }
   }
