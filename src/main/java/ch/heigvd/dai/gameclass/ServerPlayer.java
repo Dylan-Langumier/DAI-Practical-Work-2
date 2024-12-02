@@ -18,7 +18,10 @@ public class ServerPlayer extends BasePlayer {
 
   public void requestStop() {stopRequested = true;}
 
-  public void giveTurn(){mustPlay = true;}
+  public void giveTurn(char x, int y) throws IOException{
+    send("YOUR_TURN:" + x + ":" + y);
+    mustPlay = true;
+  }
 
   public void startGameWith(ServerPlayer adversary){
     this.adversary = adversary;
@@ -29,6 +32,7 @@ public class ServerPlayer extends BasePlayer {
     gameOver = true;
     System.out.printf("%s sank all your ships and won the game. You suck.", adversary.getName());
     adversary = null;
+    try{send("LOSE");}catch (IOException ignore){}
   }
 
   public void run() {
@@ -86,21 +90,19 @@ public class ServerPlayer extends BasePlayer {
         }
         continue;
       }
-
-      // asks client to play
-      send("YOUR_TURN");
       
-      // read answer
+      // play
       String[] message = receive();
       if(!message[0].equals("JOIN") || message.length != 3) {
         System.err.println("[Server] : player must play with PLAY:<x>:<y>");
+        send("ERROR:");
         continue;
       }
       char x = message[1].charAt(0);
       int y = Integer.parseInt(message[2]);
       Cell cell = enemyBoard.getCell(x,y);
       if(cell.isHit()){
-        send("ERROR");
+        send("ERROR:");
         continue;
       }
       cell.hit();
@@ -108,10 +110,9 @@ public class ServerPlayer extends BasePlayer {
 
       if(cell.getShipType() == ShipType.NONE){
         send("MISS");
-        continue;
+      }else{
+        send("HIT");
       }
-
-      send("HIT");
 
       if(enemyBoard.allShipsSank()){
         System.out.printf("You beat %s, well played",adversary.getName());
@@ -119,7 +120,7 @@ public class ServerPlayer extends BasePlayer {
         gameOver = true;
         adversary = null;
       }else{
-        adversary.giveTurn();
+        adversary.giveTurn(x,y);
       }
     }
   }
@@ -131,12 +132,12 @@ public class ServerPlayer extends BasePlayer {
     while(toPlace < ships.length){
       // tell client to place a boat
       send("PLACE:" + ships[toPlace++]);
-      
 
       // read answer
       String[] message = receive();
       if(!message[0].equals("PLACE") || message.length != 5) {
         System.err.println("[Server] : player expected to use PLACE:<ShipType>:<x>:<y>:<orientation>");
+        send("ERROR:");
         continue;
       }
       try {
@@ -162,6 +163,7 @@ public class ServerPlayer extends BasePlayer {
       String[] message = receive();
       if(!message[0].equals("JOIN") || message.length != 2) {
         System.err.println("[Server] : player must start with JOIN:<name>");
+        send("ERROR:");
         continue;
       }
       name = message[1];
