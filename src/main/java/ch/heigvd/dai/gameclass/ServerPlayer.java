@@ -19,7 +19,7 @@ public class ServerPlayer extends BasePlayer implements Runnable{
   public void requestStop() {stopRequested = true;}
 
   public void giveTurn(char x, int y) throws IOException{
-    send("YOUR_TURN:" + x + ":" + y);
+    send("PLAY:" + x + ":" + y);
     mustPlay = true;
   }
 
@@ -99,14 +99,14 @@ public class ServerPlayer extends BasePlayer implements Runnable{
       String[] message = receive();
       if(!message[0].equals("JOIN") || message.length != 3) {
         System.err.println("[Server] : player must play with PLAY:<x>:<y>");
-        send("ERROR:");
+        send("ERROR");
         continue;
       }
       char x = message[1].charAt(0);
       int y = Integer.parseInt(message[2]);
       Cell cell = enemyBoard.getCell(x,y);
       if(cell.isHit()){
-        send("ERROR:");
+        send("ERROR");
         continue;
       }
       cell.hit();
@@ -141,7 +141,7 @@ public class ServerPlayer extends BasePlayer implements Runnable{
       String[] message = receive();
       if(!message[0].equals("PLACE") || message.length != 5) {
         System.err.println("[Server] : player expected to use PLACE:<ShipType>:<x>:<y>:<orientation>");
-        send("ERROR:");
+        send("ERROR");
         continue;
       }
       try {
@@ -167,7 +167,7 @@ public class ServerPlayer extends BasePlayer implements Runnable{
       String[] message = receive();
       if(!message[0].equals("JOIN") || message.length != 2) {
         System.err.println("[Server] : player must start with JOIN:<name>");
-        send("ERROR:");
+        send("ERROR");
         continue;
       }
       name = message[1];

@@ -1,5 +1,7 @@
 package ch.heigvd.dai.gameclass;
 
+import ch.heigvd.dai.client.Instruction;
+
 import java.io.IOException;
 import java.net.Socket;
 
@@ -8,9 +10,6 @@ public class ClientPlayer extends BasePlayer {
     public ClientPlayer(Socket socket) {
         super(socket);
     }
-
-    public Board getBoard(){return board;}
-    public Board getEnemyBoard(){return enemyBoard;}
 
     @Override
     public void run() {
@@ -23,10 +22,18 @@ public class ClientPlayer extends BasePlayer {
             System.err.println("[Client] : " + e.getMessage());
         }
 
+        Instruction.init(board,enemyBoard);
+
         // start game loop
         while(!stopRequested){
+            System.out.println("Your board\n" + board);
+            System.out.println("Enemy board\n" + enemyBoard);
+
             try {
-                String[] message = receive();
+                String answer = Instruction.handle(receive());
+                if(answer != null){
+                    send(answer);
+                }
 
             } catch (IOException e) {
                 System.out.println("[Client] : " + e.getMessage());
