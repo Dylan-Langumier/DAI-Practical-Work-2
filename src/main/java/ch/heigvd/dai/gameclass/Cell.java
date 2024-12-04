@@ -24,4 +24,13 @@ public class Cell {
   public void hit() {
     isHit = true;
   }
+
+  public String toString() {
+    if (type == ShipType.NONE) {
+      if (isHit) return "0";
+      return "~";
+    }
+    if (isHit) return "X";
+    return String.valueOf(type.getSize());
+  }
 }

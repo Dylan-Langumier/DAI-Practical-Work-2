@@ -93,12 +93,7 @@ public class Board {
       char x = (char) ('A' + i);
       str.append(x);
       for (int y = 1; y <= height; ++y) {
-        Cell cell = getCell(x, y);
-        str.append(' ');
-        if (cell.isHit()) {
-          if (cell.getShipType() == ShipType.NONE) str.append('@');
-          else str.append('X');
-        } else str.append(cell.getShipType().getSize());
+        str.append(' ').append(getCell(x, y).toString());
       }
       str.append('\n');
     }

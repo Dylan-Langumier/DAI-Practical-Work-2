@@ -152,10 +152,10 @@ public class ServerPlayer extends BasePlayer implements Runnable {
   private void initializeBoard() throws IOException {
     final ShipType[] ships =
         new ShipType[] {
-          ShipType.CARRIER,
-          ShipType.BATTLESHIP,
-          ShipType.DESTROYER,
-          ShipType.SUBMARINE,
+          // ShipType.CARRIER,
+          // ShipType.BATTLESHIP,
+          // ShipType.DESTROYER,
+          // ShipType.SUBMARINE,
           ShipType.PATROLER
         };
     board = new Board();
