@@ -11,7 +11,7 @@ public class Place extends Instruction {
   }
 
   @Override
-  protected String execute(String[] arguments) {
+  protected String[] execute(String[] arguments) {
     previous_instruction = this;
     ShipType shipType = ShipType.valueOf(arguments[0]);
     System.out.println("You must place " + arguments[0]);
@@ -23,7 +23,7 @@ public class Place extends Instruction {
       try {
         // read
         String[] tokens = scanner.nextLine().split("-", 0);
-        char x = tokens[0].charAt(0);
+        char x = tokens[0].toUpperCase().charAt(0);
         int y = Integer.parseInt(tokens[1]);
         Orientation orientation = Orientation.valueOf(tokens[2]);
 
@@ -33,7 +33,9 @@ public class Place extends Instruction {
           continue;
         }
         // send
-        return "PLACE:" + arguments[0] + ":" + x + ":" + y + ":" + orientation;
+        return new String[] {
+          "PLACE", arguments[0], String.valueOf(x), String.valueOf(y), orientation.toString().toUpperCase()
+        };
       } catch (Exception ignore) {
         System.out.println("Follow format : A-5-TOP/BOTTOM/RIGHT/LEFT");
       }

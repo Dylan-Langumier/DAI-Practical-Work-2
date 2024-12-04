@@ -23,8 +23,8 @@ public class ServerPlayer extends BasePlayer implements Runnable {
   }
 
   public void giveTurn(char x, int y) throws IOException {
-    System.out.printf("Player %s is now playing", name);
-    send("PLAY:" + x + ":" + y);
+    System.out.printf("Player %s is now playing\n", name);
+    send("PLAY", String.valueOf(x), String.valueOf(y));
     mustPlay = true;
   }
 
@@ -44,7 +44,7 @@ public class ServerPlayer extends BasePlayer implements Runnable {
     System.out.printf("Player %s lost against %s", name, adversary.getName());
     adversary = null;
     try {
-      send("GAME_OVER:LOSE");
+      send("GAME_OVER", "LOSE");
     } catch (IOException ignore) {
     }
   }
@@ -71,18 +71,16 @@ public class ServerPlayer extends BasePlayer implements Runnable {
       // request a game with another player
       if (!manager.request(this)) {
         System.err.printf(
-            "[%s@%s] : Game manager refused game request \n", name, socket.getInetAddress());
+            "[%s@%s] : Game manager refused game request%n", name, socket.getInetAddress());
         return;
       }
-      System.out.printf("[%s@%s] : Game requested successfully \n", name, socket.getInetAddress());
+      System.out.printf("[%s@%s] : Game requested successfully%n", name, socket.getInetAddress());
 
       // play
       try {
         play();
       } catch (IOException e) {
-        System.err.println("[Server] : " + e.getMessage());
-        adversary.endGame();
-        break;
+        System.err.printf("[Server] : %s%n", e.getMessage());
       }
     }
 
@@ -91,7 +89,7 @@ public class ServerPlayer extends BasePlayer implements Runnable {
     } catch (IOException e) {
       System.out.println(e.getMessage());
     }
-    System.out.printf("[Player@%s] : Disconnected %n", socket.getInetAddress());
+    System.out.printf("[%s@%s] : Disconnected %n", name, socket.getInetAddress());
   }
 
   private void play() throws IOException {
@@ -102,16 +100,16 @@ public class ServerPlayer extends BasePlayer implements Runnable {
         try {
           Thread.sleep(100);
         } catch (InterruptedException e) {
-          System.err.println("[Server] : " + e.getMessage());
+          System.err.printf("[Server] : %s%n", e.getMessage());
         }
         continue;
       }
 
       // play
-      System.out.printf("Player %s must play\n", name);
+      System.out.printf("Player %s must play%n", name);
       String[] message = receive();
       System.out.printf(
-          "Player %s sent cmd : %s x : %s y : %s\n", name, message[0], message[1], message[2]);
+          "Player %s sent cmd : %s x : %s y : %s%n", name, message[0], message[1], message[2]);
       if (!message[0].equals("PLAY") || message.length != 3) {
         System.err.println("[Server] : player must play with PLAY:<x>:<y>");
         send("ERROR");
@@ -124,28 +122,28 @@ public class ServerPlayer extends BasePlayer implements Runnable {
         cell = enemyBoard.getCell(x, y);
       } catch (IndexOutOfBoundsException e) {
         System.err.println("Coordinates out of bound");
-        send("ERROR");
+        send("ERROR", "OUT_OF_BOUND");
         continue;
       }
       if (cell.isHit()) {
-        send("ERROR");
+        send("ERROR", "ALREADY_HIT");
         continue;
       }
       cell.hit();
       mustPlay = false;
 
       if (cell.getShipType() == ShipType.NONE) {
-        send("FEEDBACK:MISS");
+        send("FEEDBACK", "MISS");
       } else {
-        send("FEEDBACK:HIT");
+        send("FEEDBACK", "HIT");
       }
 
       if (enemyBoard.allShipsSank()) {
-        System.out.printf("You beat %s, well played", adversary.getName());
+        System.out.printf("You beat %s, well played%n", adversary.getName());
         adversary.endGame();
         gameOver = true;
         adversary = null;
-        send("GAME_OVER:WIN");
+        send("GAME_OVER", "WIN");
       } else {
         adversary.giveTurn(x, y);
       }
@@ -159,13 +157,13 @@ public class ServerPlayer extends BasePlayer implements Runnable {
           // ShipType.BATTLESHIP,
           // ShipType.DESTROYER,
           // ShipType.SUBMARINE,
-          ShipType.PATROLER
+          ShipType.PATROLLER
         };
     board = new Board();
     int toPlace = 0;
     while (toPlace < ships.length) {
       // tell client to place a boat
-      send("PLACE:" + ships[toPlace++]);
+      send("PLACE", ships[toPlace++].toString());
 
       // read answer
       String[] message = receive();

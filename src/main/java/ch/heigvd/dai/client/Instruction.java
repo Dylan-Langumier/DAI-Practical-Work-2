@@ -11,7 +11,7 @@ public abstract class Instruction {
   static char x;
   static int y;
 
-  public static String handle(String[] message) {
+  public static String[] handle(String[] message) {
     String[] arguments = new String[message.length - 1];
     System.arraycopy(message, 1, arguments, 0, arguments.length);
     return strToInstr.get(message[0]).execute(arguments);
@@ -21,7 +21,7 @@ public abstract class Instruction {
     strToInstr.put(key, this);
   }
 
-  protected abstract String execute(String[] arguments);
+  protected abstract String[] execute(String[] arguments);
 
   public static void init(Board board, Board enemyBoard) {
     Instruction.board = board;

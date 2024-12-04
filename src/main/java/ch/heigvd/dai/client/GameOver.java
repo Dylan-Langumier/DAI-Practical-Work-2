@@ -7,7 +7,7 @@ public class GameOver extends Instruction {
   }
 
   @Override
-  protected String execute(String[] arguments) {
+  protected String[] execute(String[] arguments) {
     if (arguments[0].equals("WIN")) {
       System.out.println("Congrats! You won the game");
     } else if (arguments[0].equals("LOSE")) {

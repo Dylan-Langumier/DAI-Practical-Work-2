@@ -5,11 +5,12 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
 public abstract class BasePlayer {
+  private final String DELIMITER = ":";
   protected final Socket socket;
   private BufferedWriter out;
   private BufferedReader in;
   protected boolean stopRequested;
-  protected String name;
+  protected String name = "Player";
 
   protected boolean mustPlay = false, gameOver = false;
   protected Board board, enemyBoard;
@@ -28,18 +29,17 @@ public abstract class BasePlayer {
     }
   }
 
-  protected void send(String message) throws IOException {
-    out.write(message);
+  protected void send(String... message) throws IOException {
+    if (message == null) {
+      throw new IllegalArgumentException("Message cannot be null");
+    }
+    out.write(String.join(DELIMITER, message));
     out.newLine();
     out.flush();
   }
 
   protected String[] receive() throws IOException {
-    String line = in.readLine();
-    if (line == null) {
-      throw new IOException("Lost connection");
-    }
-    return line.split(":", 0);
+    return in.readLine().split(DELIMITER, 0);
   }
 
   public String getName() {

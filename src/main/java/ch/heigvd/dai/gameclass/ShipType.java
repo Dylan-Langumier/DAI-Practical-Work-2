@@ -6,10 +6,10 @@ public enum ShipType {
   BATTLESHIP(4),
   DESTROYER(3),
   SUBMARINE(3),
-  PATROLER(2);
+  PATROLLER(2);
 
   // constructor
-  private ShipType(final int size) {
+  ShipType(final int size) {
     this.size = size;
   }
 

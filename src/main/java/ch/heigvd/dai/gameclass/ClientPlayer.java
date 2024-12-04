@@ -21,7 +21,7 @@ public class ClientPlayer extends BasePlayer {
 
     // joins the server
     try {
-      send("JOIN:" + name);
+      send("JOIN", name);
     } catch (IOException e) {
       System.err.println("[Client] : " + e.getMessage());
     }
@@ -33,7 +33,7 @@ public class ClientPlayer extends BasePlayer {
     // start game loop
     while (!stopRequested) {
       try {
-        String answer = Instruction.handle(receive());
+        String[] answer = Instruction.handle(receive());
         if (answer != null) {
           send(answer);
         }

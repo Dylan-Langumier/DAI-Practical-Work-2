@@ -10,10 +10,10 @@ public class Feedback extends Instruction {
   }
 
   @Override
-  protected String execute(String[] arguments) {
+  protected String[] execute(String[] arguments) {
     if (arguments[0].equals("HIT")) {
       System.out.println("HIT");
-      enemyBoard.setCell(x, y, new Cell(ShipType.PATROLER));
+      enemyBoard.setCell(x, y, new Cell(ShipType.PATROLLER));
     } else if (arguments[0].equals("MISS")) {
       System.out.println("MISS");
     }

@@ -10,7 +10,7 @@ public class Play extends Instruction {
   }
 
   @Override
-  protected String execute(String[] arguments) {
+  protected String[] execute(String[] arguments) {
     previous_instruction = this;
     if (arguments.length == 3) {
       char hitX = arguments[0].charAt(0);
@@ -34,7 +34,7 @@ public class Play extends Instruction {
         x = tokens[0].charAt(0);
         y = Integer.parseInt(tokens[1]);
         board.getCell(x, y);
-        return "PLAY:" + x + ":" + y;
+        return new String[] {"PLAY", String.valueOf(x), String.valueOf(y)};
       } catch (IndexOutOfBoundsException e) {
         System.out.println("Out of bound");
       } catch (Exception e) {
