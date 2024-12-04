@@ -1,5 +1,7 @@
 package ch.heigvd.dai.client;
 
+import ch.heigvd.dai.gameclass.ShipType;
+
 import java.util.Scanner;
 
 public class Play extends Instruction {
@@ -14,6 +16,11 @@ public class Play extends Instruction {
       char hitX = arguments[0].charAt(0);
       int hitY = Integer.parseInt(arguments[1]);
       board.getCell(hitX, hitY).hit();
+      if(board.getCell(hitX,hitY).getShipType() == ShipType.NONE){
+        System.out.printf("The enemy missed! (%c,%d)\n",hitX,hitY);
+      }else{
+        System.out.printf("The enemy hit one of your ships at (%c,%d)",hitX,hitY);
+      }
     }
 
     System.out.println("Your board\n" + board);

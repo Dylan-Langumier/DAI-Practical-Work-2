@@ -13,7 +13,7 @@ public class Cell {
     this(ShipType.NONE);
   }
 
-  protected ShipType getShipType() {
+  public ShipType getShipType() {
     return type;
   }
 
