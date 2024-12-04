@@ -24,9 +24,9 @@ public class GameManager {
       if (waiting.size() >= 2) {
         ServerPlayer p1 = waiting.pop();
         ServerPlayer p2 = waiting.pop();
-        p1.startGameWith(p2);
-        p2.startGameWith(p1);
         try {
+          p1.startGameWith(p2);
+          p2.startGameWith(p1);
           p1.start();
         } catch (IOException ignore) {
         }

@@ -29,6 +29,7 @@ public abstract class Instruction {
     if (lock) return;
     lock = true;
     new Place();
+    new GameStarted();
     new Play();
     new Feedback();
     new GameOver();
