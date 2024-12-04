@@ -26,10 +26,11 @@ public class Play extends Instruction {
         String[] tokens = scanner.nextLine().split("-", 2);
         x = tokens[0].charAt(0);
         y = Integer.parseInt(tokens[1]);
-        board.getCell(x,y);
+        board.getCell(x, y);
         return "PLAY:" + x + ":" + y;
-      }catch
-      catch (Exception ignore) {
+      } catch (IndexOutOfBoundsException e) {
+        System.out.println("Out of bound");
+      } catch (Exception e) {
         System.out.println("Follow format : A-5");
       }
     }
