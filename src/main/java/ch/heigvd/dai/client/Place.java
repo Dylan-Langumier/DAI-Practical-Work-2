@@ -17,6 +17,8 @@ public class Place extends Instruction {
     System.out.println("You must place " + arguments[0]);
     Scanner scanner = new Scanner(System.in);
 
+    System.out.println("Your board\n" + board);
+
     while (true) {
       try {
         // read

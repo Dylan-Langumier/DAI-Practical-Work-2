@@ -4,7 +4,7 @@ public class Cell {
   private ShipType type;
   private boolean isHit;
 
-  protected Cell(ShipType type) {
+  public Cell(ShipType type) {
     this.type = type;
     this.isHit = false;
   }

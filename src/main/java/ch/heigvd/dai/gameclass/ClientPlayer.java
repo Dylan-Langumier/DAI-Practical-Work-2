@@ -32,9 +32,6 @@ public class ClientPlayer extends BasePlayer {
 
     // start game loop
     while (!stopRequested) {
-      System.out.println("Your board\n" + board);
-      System.out.println("Enemy board\n" + enemyBoard);
-
       try {
         String answer = Instruction.handle(receive());
         if (answer != null) {

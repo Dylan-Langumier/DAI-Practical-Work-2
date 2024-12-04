@@ -23,6 +23,7 @@ public class ServerPlayer extends BasePlayer implements Runnable {
   }
 
   public void giveTurn(char x, int y) throws IOException {
+    System.out.printf("Player %s is now playing", name);
     send("PLAY:" + x + ":" + y);
     mustPlay = true;
   }
@@ -39,7 +40,7 @@ public class ServerPlayer extends BasePlayer implements Runnable {
 
   public void endGame() {
     gameOver = true;
-    System.out.printf("%s sank all your ships and won the game. You suck.", adversary.getName());
+    System.out.printf("Player %s lost against %s", name, adversary.getName());
     adversary = null;
     try {
       send("LOSE");
@@ -104,8 +105,10 @@ public class ServerPlayer extends BasePlayer implements Runnable {
       }
 
       // play
+      System.out.printf("Player %s must play", name);
       String[] message = receive();
-      System.out.printf("cmd : %s x : %s y : %s", message[0], message[1], message[2]);
+      System.out.printf(
+          "Player %s sent cmd : %s x : %s y : %s\n", name, message[0], message[1], message[2]);
       if (!message[0].equals("PLAY") || message.length != 3) {
         System.err.println("[Server] : player must play with PLAY:<x>:<y>");
         send("ERROR");
@@ -142,10 +145,10 @@ public class ServerPlayer extends BasePlayer implements Runnable {
   private void initializeBoard() throws IOException {
     final ShipType[] ships =
         new ShipType[] {
-          // ShipType.CARRIER,
-          // ShipType.BATTLESHIP,
-          // ShipType.DESTROYER,
-          // ShipType.SUBMARINE,
+          ShipType.CARRIER,
+          ShipType.BATTLESHIP,
+          ShipType.DESTROYER,
+          ShipType.SUBMARINE,
           ShipType.PATROLER
         };
     board = new Board();

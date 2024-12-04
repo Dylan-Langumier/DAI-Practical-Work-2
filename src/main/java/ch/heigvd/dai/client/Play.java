@@ -15,6 +15,10 @@ public class Play extends Instruction {
       int hitY = Integer.parseInt(arguments[1]);
       board.getCell(hitX, hitY).hit();
     }
+
+    System.out.println("Your board\n" + board);
+    System.out.println("Enemy board\n" + enemyBoard);
+
     Scanner scanner = new Scanner(System.in);
     while (true) {
       try {

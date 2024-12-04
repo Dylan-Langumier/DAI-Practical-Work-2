@@ -63,7 +63,7 @@ public class Board {
     return cells[x][y];
   }
 
-  void setCell(char letter, int y, Cell c) {
+  public void setCell(char letter, int y, Cell c) {
     int x = letterToOrdinal(letter);
     y = y - 1;
     if (x < 0 || y < 0 || x >= width || y >= height) throw new IndexOutOfBoundsException();

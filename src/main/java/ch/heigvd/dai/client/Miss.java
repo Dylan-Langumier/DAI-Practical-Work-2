@@ -9,6 +9,9 @@ public class Miss extends Instruction {
   protected String execute(String[] arguments) {
     System.out.println("MISS");
     enemyBoard.getCell(x, y).hit();
-    return "";
+
+    System.out.println("Enemy board\n" + enemyBoard);
+
+    return null;
   }
 }
