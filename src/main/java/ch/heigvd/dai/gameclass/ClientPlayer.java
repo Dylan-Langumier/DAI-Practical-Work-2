@@ -1,45 +1,51 @@
 package ch.heigvd.dai.gameclass;
 
 import ch.heigvd.dai.client.Instruction;
-
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Scanner;
 
 public class ClientPlayer extends BasePlayer {
 
-    public ClientPlayer(Socket socket) {
-        super(socket);
+  public ClientPlayer(Socket socket) {
+    super(socket);
+  }
+
+  @Override
+  public void run() {
+    System.out.println("[Client] : starting");
+
+    System.out.println("Choose a name");
+    Scanner in = new Scanner(System.in);
+    name = in.nextLine();
+
+    // joins the server
+    try {
+      send("JOIN:" + name);
+    } catch (IOException e) {
+      System.err.println("[Client] : " + e.getMessage());
     }
 
-    @Override
-    public void run() {
-        System.out.println("[Client] : starting");
+    board = new Board();
+    enemyBoard = new Board();
+    Instruction.init(board, enemyBoard);
 
-        // joins the server
-        try {
-            send("JOIN:" + name);
-        } catch (IOException e) {
-            System.err.println("[Client] : " + e.getMessage());
+    // start game loop
+    while (!stopRequested) {
+      System.out.println("Your board\n" + board);
+      System.out.println("Enemy board\n" + enemyBoard);
+
+      try {
+        String answer = Instruction.handle(receive());
+        if (answer != null) {
+          send(answer);
         }
 
-        Instruction.init(board,enemyBoard);
-
-        // start game loop
-        while(!stopRequested){
-            System.out.println("Your board\n" + board);
-            System.out.println("Enemy board\n" + enemyBoard);
-
-            try {
-                String answer = Instruction.handle(receive());
-                if(answer != null){
-                    send(answer);
-                }
-
-            } catch (IOException e) {
-                System.out.println("[Client] : " + e.getMessage());
-            }
-        }
-
-        System.out.println("[Client] : stopping");
+      } catch (IOException e) {
+        System.out.println("[Client] : " + e.getMessage());
+      }
     }
+
+    System.out.println("[Client] : stopping");
+  }
 }

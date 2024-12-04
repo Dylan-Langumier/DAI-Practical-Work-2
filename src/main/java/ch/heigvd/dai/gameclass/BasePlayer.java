@@ -4,41 +4,43 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
-public abstract class BasePlayer{
-    protected final Socket socket;
-    private BufferedWriter out;
-    private BufferedReader in;
-    protected boolean stopRequested;
-    protected String name;
+public abstract class BasePlayer {
+  protected final Socket socket;
+  private BufferedWriter out;
+  private BufferedReader in;
+  protected boolean stopRequested;
+  protected String name;
 
-    protected boolean mustPlay = false,
-            gameOver = false;
-    protected Board board,
-            enemyBoard;
+  protected boolean mustPlay = false, gameOver = false;
+  protected Board board, enemyBoard;
 
-    BasePlayer(Socket socket){
-        this.socket = socket;
-        try(InputStreamReader isr = new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8);
-            OutputStreamWriter osw =
-                    new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)) {
-            in = new BufferedReader(isr);
-            out = new BufferedWriter(osw);
-        }catch (IOException e){
-            System.err.println(e.getMessage());
-        }
+  BasePlayer(Socket socket) {
+    this.socket = socket;
+    try {
+      in =
+          new BufferedReader(
+              new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
+      out =
+          new BufferedWriter(
+              new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
     }
+  }
 
-    protected void send(String message) throws IOException {
-        out.write(message);
-        out.newLine();
-        out.flush();
-    }
+  protected void send(String message) throws IOException {
+    out.write(message);
+    out.newLine();
+    out.flush();
+  }
 
-    protected String[] receive() throws IOException{
-        return in.readLine().splitWithDelimiters(":",0);
-    }
+  protected String[] receive() throws IOException {
+    return in.readLine().split(":", 0);
+  }
 
-    public String getName(){return name;}
+  public String getName() {
+    return name;
+  }
 
-    public abstract void run();
+  public abstract void run();
 }

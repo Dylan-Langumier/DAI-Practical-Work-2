@@ -1,7 +1,6 @@
 package ch.heigvd.dai.client;
 
 import ch.heigvd.dai.gameclass.ClientPlayer;
-
 import java.io.IOException;
 import java.net.Socket;
 

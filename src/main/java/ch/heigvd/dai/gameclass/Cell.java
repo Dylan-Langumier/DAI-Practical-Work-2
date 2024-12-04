@@ -1,6 +1,6 @@
 package ch.heigvd.dai.gameclass;
 
-class Cell {
+public class Cell {
   private ShipType type;
   private boolean isHit;
 
@@ -21,6 +21,7 @@ class Cell {
     return isHit;
   }
 
-  public void hit(){isHit = true;}
+  public void hit() {
+    isHit = true;
+  }
 }
-

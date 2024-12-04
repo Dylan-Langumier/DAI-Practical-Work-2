@@ -10,6 +10,9 @@ public class Board {
       throw new IllegalArgumentException("Dimensions cannot be smaller than 0.");
     }
     this.cells = new Cell[width][height];
+    for (int x = 0; x < width; ++x) {
+      for (int y = 0; y < height; ++y) cells[x][y] = new Cell();
+    }
     this.width = width;
     this.height = height;
   }
@@ -18,16 +21,30 @@ public class Board {
     this(10, 10);
   }
 
-  public boolean place(ShipType ship, char x, int y, Orientation orientation ){
-    for(int i = 0; i < ship.getSize(); ++i){
-      Cell cell = switch (orientation){
-        case TOP -> getCell(x,(y + i));
-        case BOTTOM -> getCell(x,(y - i));
-        case RIGHT -> getCell((char)(x + i),y);
-        case LEFT -> getCell((char)(x - i), y);
-      };
-      if(cell.getShipType() != ShipType.NONE)
+  public boolean place(ShipType ship, char x, int y, Orientation orientation) {
+    for (int i = 0; i < ship.getSize(); ++i) {
+      Cell cell;
+      try {
+        cell =
+            switch (orientation) {
+              case RIGHT -> getCell(x, (y + i));
+              case LEFT -> getCell(x, (y - i));
+              case TOP -> getCell((char) (x + i), y);
+              case BOTTOM -> getCell((char) (x - i), y);
+            };
+      } catch (Exception ignore) {
         return false;
+      }
+      if (cell.getShipType() != ShipType.NONE) return false;
+    }
+    for (int i = 0; i < ship.getSize(); ++i) {
+      Cell c = new Cell(ship);
+      switch (orientation) {
+        case RIGHT -> setCell(x, (y + i), c);
+        case LEFT -> setCell(x, (y - i), c);
+        case TOP -> setCell((char) (x + i), y, c);
+        case BOTTOM -> setCell((char) (x - i), y, c);
+      }
     }
     return true;
   }
@@ -39,37 +56,49 @@ public class Board {
     return upper - 'A';
   }
 
-  Cell getCell(char letter, int y) {
+  public Cell getCell(char letter, int y) {
     int x = letterToOrdinal(letter);
+    y = y - 1;
     if (x < 0 || y < 0 || x >= width || y >= height) throw new IndexOutOfBoundsException();
     return cells[x][y];
   }
 
-  boolean allShipsSank(){
-    for(int x = 0; x < width; ++x){
-      for(int y = 0; y < height; ++y){
-        if(cells[x][y].getShipType() != ShipType.NONE && !cells[x][y].isHit())
-          return false;
+  void setCell(char letter, int y, Cell c) {
+    int x = letterToOrdinal(letter);
+    y = y - 1;
+    if (x < 0 || y < 0 || x >= width || y >= height) throw new IndexOutOfBoundsException();
+    cells[x][y] = c;
+  }
+
+  boolean allShipsSank() {
+    for (int x = 0; x < width; ++x) {
+      for (int y = 0; y < height; ++y) {
+        if (cells[x][y].getShipType() != ShipType.NONE && !cells[x][y].isHit()) return false;
       }
     }
     return true;
   }
 
-  public String toString(){
+  public String toString() {
     StringBuilder str = new StringBuilder();
     // number header
     str.append(' '); // space for letters
-    for(int y = 1; y <= height; ++y){
+    for (int y = 1; y <= height; ++y) {
       str.append(' ').append(y);
     }
     str.append('\n');
 
     // content
-    for(int i = 0; i < width; ++i){
-      char x = (char)('A' + i);
+    for (int i = 0; i < width; ++i) {
+      char x = (char) ('A' + i);
       str.append(x);
-      for(int y = 1; y <= height; ++y){
-        str.append(' ').append(getCell(x,y).getShipType().getSize());
+      for (int y = 1; y <= height; ++y) {
+        Cell cell = getCell(x, y);
+        str.append(' ');
+        if (cell.isHit()) {
+          if (cell.getShipType() == ShipType.NONE) str.append('@');
+          else str.append('X');
+        } else str.append(cell.getShipType().getSize());
       }
       str.append('\n');
     }
