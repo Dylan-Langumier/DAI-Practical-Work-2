@@ -18,10 +18,6 @@ public class ServerPlayer extends BasePlayer implements Runnable {
     this.enemyBoard = enemyBoard;
   }
 
-  public void requestStop() {
-    stopRequested = true;
-  }
-
   public void giveTurn(char x, int y) throws IOException {
     System.out.printf("Player %s is now playing\n", name);
     send("PLAY", String.valueOf(x), String.valueOf(y));
@@ -39,12 +35,16 @@ public class ServerPlayer extends BasePlayer implements Runnable {
     send("GAME_STARTED:" +  adversary.getName());
   }
 
-  public void endGame() {
+  public void endGame(boolean victory) {
     gameOver = true;
-    System.out.printf("Player %s lost against %s", name, adversary.getName());
     adversary = null;
+    String argument;
+    if(victory)
+      argument = "WIN";
+    else
+      argument = "LOSE";
     try {
-      send("GAME_OVER", "LOSE");
+      send("GAME_OVER", argument);
     } catch (IOException ignore) {
     }
   }
@@ -81,6 +81,8 @@ public class ServerPlayer extends BasePlayer implements Runnable {
         play();
       } catch (IOException e) {
         System.err.printf("[Server] : %s%n", e.getMessage());
+        adversary.endGame(true);
+        break;
       }
     }
 
@@ -139,11 +141,9 @@ public class ServerPlayer extends BasePlayer implements Runnable {
       }
 
       if (enemyBoard.allShipsSank()) {
-        System.out.printf("You beat %s, well played%n", adversary.getName());
-        adversary.endGame();
-        gameOver = true;
-        adversary = null;
-        send("GAME_OVER", "WIN");
+        System.out.printf("[%s@%s] : Won against %s", name, socket.getInetAddress(),adversary.getName());
+        adversary.endGame(false);
+        endGame(true);
       } else {
         adversary.giveTurn(x, y);
       }
