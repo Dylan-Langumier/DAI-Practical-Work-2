@@ -40,6 +40,7 @@ public class ClientPlayer extends BasePlayer {
 
       } catch (IOException e) {
         System.out.println("[Client] : " + e.getMessage());
+        break;
       }
     }
 

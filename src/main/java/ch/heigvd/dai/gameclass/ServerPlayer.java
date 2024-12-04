@@ -81,6 +81,8 @@ public class ServerPlayer extends BasePlayer implements Runnable {
         play();
       } catch (IOException e) {
         System.err.println("[Server] : " + e.getMessage());
+        adversary.endGame();
+        break;
       }
     }
 
