@@ -105,7 +105,7 @@ public class ServerPlayer extends BasePlayer implements Runnable {
       }
 
       // play
-      System.out.printf("Player %s must play", name);
+      System.out.printf("Player %s must play\n", name);
       String[] message = receive();
       System.out.printf(
           "Player %s sent cmd : %s x : %s y : %s\n", name, message[0], message[1], message[2]);
@@ -116,7 +116,14 @@ public class ServerPlayer extends BasePlayer implements Runnable {
       }
       char x = message[1].charAt(0);
       int y = Integer.parseInt(message[2]);
-      Cell cell = enemyBoard.getCell(x, y);
+      Cell cell;
+      try {
+        cell = enemyBoard.getCell(x, y);
+      } catch (IndexOutOfBoundsException e) {
+        System.err.println("Coordinates out of bound");
+        send("ERROR");
+        continue;
+      }
       if (cell.isHit()) {
         send("ERROR");
         continue;

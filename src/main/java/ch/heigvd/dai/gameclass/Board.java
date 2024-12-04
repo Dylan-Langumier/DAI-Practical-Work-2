@@ -29,8 +29,8 @@ public class Board {
             switch (orientation) {
               case RIGHT -> getCell(x, (y + i));
               case LEFT -> getCell(x, (y - i));
-              case TOP -> getCell((char) (x + i), y);
-              case BOTTOM -> getCell((char) (x - i), y);
+              case BOTTOM -> getCell((char) (x + i), y);
+              case TOP -> getCell((char) (x - i), y);
             };
       } catch (Exception ignore) {
         return false;
@@ -42,8 +42,8 @@ public class Board {
       switch (orientation) {
         case RIGHT -> setCell(x, (y + i), c);
         case LEFT -> setCell(x, (y - i), c);
-        case TOP -> setCell((char) (x + i), y, c);
-        case BOTTOM -> setCell((char) (x - i), y, c);
+        case BOTTOM -> setCell((char) (x + i), y, c);
+        case TOP -> setCell((char) (x - i), y, c);
       }
     }
     return true;
