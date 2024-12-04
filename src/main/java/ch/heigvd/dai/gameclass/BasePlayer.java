@@ -39,7 +39,11 @@ public abstract class BasePlayer {
   }
 
   protected String[] receive() throws IOException {
-    return in.readLine().split(DELIMITER, 0);
+    String line = in.readLine();
+    if (line == null) {
+      throw new IOException("Connection lost");
+    }
+    return line.split(DELIMITER, 0);
   }
 
   public String getName() {

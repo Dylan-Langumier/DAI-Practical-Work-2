@@ -11,14 +11,15 @@ public class Play extends Instruction {
   @Override
   protected String[] execute(String[] arguments) {
     previous_instruction = this;
-    if (arguments.length == 3) {
+    if (arguments.length == 2) {
       char hitX = arguments[0].charAt(0);
       int hitY = Integer.parseInt(arguments[1]);
       board.getCell(hitX, hitY).hit();
+
       if (board.getCell(hitX, hitY).getShipType() == ShipType.NONE) {
         System.out.printf("The enemy missed! (%c,%d)\n", hitX, hitY);
       } else {
-        System.out.printf("The enemy hit one of your ships at (%c,%d)", hitX, hitY);
+        System.out.printf("The enemy hit one of your ships at (%c,%d)\n", hitX, hitY);
       }
     }
 
