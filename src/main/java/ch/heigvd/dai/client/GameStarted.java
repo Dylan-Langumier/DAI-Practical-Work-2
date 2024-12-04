@@ -7,7 +7,7 @@ public class GameStarted extends Instruction {
   }
 
   @Override
-  protected String execute(String[] arguments) {
+  protected String[] execute(String[] arguments) {
     System.out.printf("Game started with %s, good luck!\n", arguments[0]);
     return null;
   }
