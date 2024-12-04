@@ -43,7 +43,7 @@ public class ServerPlayer extends BasePlayer implements Runnable {
     System.out.printf("Player %s lost against %s", name, adversary.getName());
     adversary = null;
     try {
-      send("LOSE");
+      send("GAME_OVER:LOSE");
     } catch (IOException ignore) {
     }
   }
@@ -132,9 +132,9 @@ public class ServerPlayer extends BasePlayer implements Runnable {
       mustPlay = false;
 
       if (cell.getShipType() == ShipType.NONE) {
-        send("MISS");
+        send("FEEDBACK:MISS");
       } else {
-        send("HIT");
+        send("FEEDBACK:HIT");
       }
 
       if (enemyBoard.allShipsSank()) {
@@ -142,7 +142,7 @@ public class ServerPlayer extends BasePlayer implements Runnable {
         adversary.endGame();
         gameOver = true;
         adversary = null;
-        send("WIN");
+        send("GAME_OVER:WIN");
       } else {
         adversary.giveTurn(x, y);
       }

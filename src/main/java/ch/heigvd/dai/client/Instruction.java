@@ -30,10 +30,8 @@ public abstract class Instruction {
     lock = true;
     new Place();
     new Play();
-    new Hit();
-    new Miss();
-    new Win();
-    new Lose();
+    new Feedback();
+    new GameOver();
     new Error();
   }
 }
