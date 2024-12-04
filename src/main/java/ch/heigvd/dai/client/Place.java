@@ -34,7 +34,11 @@ public class Place extends Instruction {
         }
         // send
         return new String[] {
-          "PLACE", arguments[0], String.valueOf(x), String.valueOf(y), orientation.toString().toUpperCase()
+          "PLACE",
+          arguments[0],
+          String.valueOf(x),
+          String.valueOf(y),
+          orientation.toString().toUpperCase()
         };
       } catch (Exception ignore) {
         System.out.println("Follow format : A-5-TOP/BOTTOM/RIGHT/LEFT");

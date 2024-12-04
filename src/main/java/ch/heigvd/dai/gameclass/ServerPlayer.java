@@ -36,7 +36,7 @@ public class ServerPlayer extends BasePlayer implements Runnable {
   public void startGameWith(ServerPlayer adversary) throws IOException {
     this.adversary = adversary;
     adversary.setEnemyBoard(board);
-    send("GAME_STARTED:" + adversary.getName());
+    send("GAME_STARTED:" +  adversary.getName());
   }
 
   public void endGame() {

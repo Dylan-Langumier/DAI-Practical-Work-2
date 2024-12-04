@@ -5,7 +5,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
 public abstract class BasePlayer {
-  private final String DELIMITER = ":";
+  private static final String DELIMITER = ":";
   protected final Socket socket;
   private BufferedWriter out;
   private BufferedReader in;
