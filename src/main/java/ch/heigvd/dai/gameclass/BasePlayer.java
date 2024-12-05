@@ -1,21 +1,35 @@
 package ch.heigvd.dai.gameclass;
 
+import ch.heigvd.dai.Logger;
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public abstract class BasePlayer {
+  protected enum Message {
+    PLAY,
+    ERROR,
+    GAME_STARTED,
+    FEEDBACK,
+    PLACE,
+    JOIN,
+    GAME_OVER,
+  }
+
   private static final String DELIMITER = ":";
   protected final Socket socket;
   private BufferedWriter out;
   private BufferedReader in;
   protected boolean stopRequested;
   protected String name = "Player";
+  protected final Logger logger;
 
   protected boolean mustPlay = false, gameOver = false;
   protected Board board, enemyBoard;
 
   BasePlayer(Socket socket) {
+    this.logger = new Logger(getClass().getSimpleName());
     this.socket = socket;
     try {
       in =
@@ -25,17 +39,25 @@ public abstract class BasePlayer {
           new BufferedWriter(
               new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
     } catch (IOException e) {
-      System.err.println(e.getMessage());
+      logger.error(e.getMessage());
     }
   }
 
-  protected void send(String... message) throws IOException {
-    if (message == null) {
-      throw new IllegalArgumentException("Message cannot be null");
-    }
-    out.write(String.join(DELIMITER, message));
+  protected void send(Message command, String... message) throws IOException {
+    out.write(command.name());
+    if (message != null) out.write(DELIMITER + String.join(DELIMITER, message));
     out.newLine();
     out.flush();
+  }
+
+  protected void send(Message command, Object... message) throws IOException {
+    send(command, Arrays.toString(message));
+  }
+
+  protected void send(String... message) throws IOException {
+    String[] arguments = new String[message.length - 1];
+    System.arraycopy(message, 1, arguments, 0, arguments.length);
+    send(Message.valueOf(message[0]), arguments);
   }
 
   protected String[] receive() throws IOException {

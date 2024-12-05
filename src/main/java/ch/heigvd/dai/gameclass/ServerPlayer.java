@@ -6,7 +6,6 @@ import java.net.Socket;
 
 public class ServerPlayer extends BasePlayer implements Runnable {
   private final GameManager manager;
-
   private ServerPlayer adversary;
 
   public ServerPlayer(Socket socket, GameManager manager) {
@@ -19,42 +18,39 @@ public class ServerPlayer extends BasePlayer implements Runnable {
   }
 
   public void giveTurn(char x, int y) throws IOException {
-    System.out.printf("Player %s is now playing\n", name);
-    send("PLAY", String.valueOf(x), String.valueOf(y));
+    logger.info("Player %s is now playing", name);
+    send(Message.PLAY, x, y);
     mustPlay = true;
   }
 
   public void start() throws IOException {
-    send("PLAY");
+    send(Message.PLAY);
     mustPlay = true;
   }
 
   public void startGameWith(ServerPlayer adversary) throws IOException {
     this.adversary = adversary;
     adversary.setEnemyBoard(board);
-    send("GAME_STARTED:" +  adversary.getName());
+    send(Message.GAME_STARTED, adversary.getName());
   }
 
   public void endGame(boolean victory) {
     gameOver = true;
     adversary = null;
-    String argument;
-    if (victory) argument = "WIN";
-    else argument = "LOSE";
     try {
-      send("GAME_OVER", argument);
+      send(Message.GAME_OVER, victory ? "WIN" : "LOSE");
     } catch (IOException ignore) {
     }
   }
 
   public void run() {
-    System.out.printf("[Player@%s] : Connected %n", socket.getInetAddress());
+    logger.info("[%s@%s] : Connected", name, socket.getInetAddress());
 
     // wait for join
     try {
       waitForJoin();
     } catch (IOException e) {
-      System.err.println("[Server] : " + e.getMessage());
+      logger.error(e.getMessage());
       return;
     }
 
@@ -63,22 +59,21 @@ public class ServerPlayer extends BasePlayer implements Runnable {
       try {
         initializeBoard();
       } catch (IOException e) {
-        System.err.println("[Server] : " + e.getMessage());
+        logger.error(e.getMessage());
       }
 
       // request a game with another player
       if (!manager.request(this)) {
-        System.err.printf(
-            "[%s@%s] : Game manager refused game request%n", name, socket.getInetAddress());
+        logger.error("[%s@%s] : Game manager refused game request", name, socket.getInetAddress());
         return;
       }
-      System.out.printf("[%s@%s] : Game requested successfully%n", name, socket.getInetAddress());
+      logger.info("[%s@%s] : Game requested successfully", name, socket.getInetAddress());
 
       // play
       try {
         play();
       } catch (IOException e) {
-        System.err.printf("[Server] : %s%n", e.getMessage());
+        logger.error(e.getMessage());
         adversary.endGame(true);
         break;
       }
@@ -87,9 +82,9 @@ public class ServerPlayer extends BasePlayer implements Runnable {
     try {
       socket.close();
     } catch (IOException e) {
-      System.out.println(e.getMessage());
+      logger.error(e.getMessage());
     }
-    System.out.printf("[%s@%s] : Disconnected %n", name, socket.getInetAddress());
+    logger.info("[%s@%s] : Disconnected", name, socket.getInetAddress());
   }
 
   private void play() throws IOException {
@@ -101,19 +96,19 @@ public class ServerPlayer extends BasePlayer implements Runnable {
         try {
           Thread.sleep(500);
         } catch (InterruptedException e) {
-          System.err.printf("[Server] : %s%n", e.getMessage());
+          logger.error(e.getMessage());
         }
         continue;
       }
 
       // play
-      System.out.printf("Player %s must play%n", name);
+      logger.info("Player %s must play", name);
       String[] message = receive();
-      System.out.printf(
-          "Player %s sent cmd : %s x : %s y : %s%n", name, message[0], message[1], message[2]);
-      if (!message[0].equals("PLAY") || message.length != 3) {
-        System.err.println("[Server] : player must play with PLAY:<x>:<y>");
-        send("ERROR");
+      Message command = Message.valueOf(message[0]);
+      logger.info("Player %s sent cmd : %s x=%s y=%s", name, message[0], message[1], message[2]);
+      if (command != Message.JOIN || message.length != 3) {
+        logger.error("Player must play with PLAY:<x>:<y>");
+        send(Message.ERROR);
         continue;
       }
       char x = message[1].charAt(0);
@@ -122,26 +117,21 @@ public class ServerPlayer extends BasePlayer implements Runnable {
       try {
         cell = enemyBoard.getCell(x, y);
       } catch (IndexOutOfBoundsException e) {
-        System.err.println("Coordinates out of bound");
-        send("ERROR", "OUT_OF_BOUND");
+        logger.error("Coordinates out of bounds");
+        send(Message.ERROR, "OUT_OF_BOUND");
         continue;
       }
       if (cell.isHit()) {
-        send("ERROR", "ALREADY_HIT");
+        send(Message.ERROR, "ALREADY_HIT");
         continue;
       }
       cell.hit();
       mustPlay = false;
 
-      if (cell.getShipType() == ShipType.NONE) {
-        send("FEEDBACK", "MISS");
-      } else {
-        send("FEEDBACK", "HIT");
-      }
+      send(Message.FEEDBACK, cell.hasShip() ? "HIT" : "MISS");
 
       if (enemyBoard.allShipsSank()) {
-        System.out.printf(
-            "[%s@%s] : Won against %s", name, socket.getInetAddress(), adversary.getName());
+        logger.info("[%s@%s] : Won against %s", name, socket.getInetAddress(), adversary.getName());
         adversary.endGame(false);
         endGame(true);
       } else {
@@ -163,14 +153,14 @@ public class ServerPlayer extends BasePlayer implements Runnable {
     int toPlace = 0;
     while (toPlace < ships.length) {
       // tell client to place a boat
-      send("PLACE", ships[toPlace++].toString());
+      send(Message.PLACE, ships[toPlace++].toString());
 
       // read answer
       String[] message = receive();
-      if (!message[0].equals("PLACE") || message.length != 5) {
-        System.err.println(
-            "[Server] : player expected to use PLACE:<ShipType>:<x>:<y>:<orientation>");
-        send("ERROR");
+      Message command = Message.valueOf(message[0]);
+      if (command != Message.PLACE || message.length != 5) {
+        logger.error("Player expected to use %s:<ShipType>:<x>:<y>:<orientation>%n", Message.PLACE);
+        send(Message.ERROR);
         continue;
       }
       try {
@@ -180,10 +170,10 @@ public class ServerPlayer extends BasePlayer implements Runnable {
         Orientation orientation = Orientation.valueOf(message[4]);
 
         if (!board.place(shipType, x, y, orientation)) {
-          System.err.println("[Server] : Invalid placement");
+          logger.error("Invalid placement for %s", name);
         }
       } catch (Exception e) {
-        System.err.println("[Server] : Invalid arguments");
+        logger.error("Invalid arguments for %s", name);
       }
     }
   }
@@ -193,9 +183,10 @@ public class ServerPlayer extends BasePlayer implements Runnable {
     while (attempts > 0) {
       --attempts;
       String[] message = receive();
-      if (!message[0].equals("JOIN") || message.length != 2) {
-        System.err.println("[Server] : player must start with JOIN:<name>");
-        send("ERROR");
+      Message command = Message.valueOf(message[0]);
+      if (command != Message.JOIN || message.length != 2) {
+        logger.error("Player must start with %s:<name>", Message.JOIN);
+        send(Message.ERROR);
         continue;
       }
       name = message[1];

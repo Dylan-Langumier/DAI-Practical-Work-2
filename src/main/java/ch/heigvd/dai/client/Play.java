@@ -1,11 +1,10 @@
 package ch.heigvd.dai.client;
 
-import ch.heigvd.dai.gameclass.ShipType;
 import java.util.Scanner;
 
 public class Play extends Instruction {
   public Play() {
-    super("PLAY");
+    super(Message.PLAY);
   }
 
   @Override
@@ -16,29 +15,29 @@ public class Play extends Instruction {
       int hitY = Integer.parseInt(arguments[1]);
       board.getCell(hitX, hitY).hit();
 
-      if (board.getCell(hitX, hitY).getShipType() == ShipType.NONE) {
-        System.out.printf("The enemy missed! (%c,%d)\n", hitX, hitY);
+      if (!board.getCell(hitX, hitY).hasShip()) {
+        logger.info("The enemy missed! (%c,%d)\n", hitX, hitY);
       } else {
-        System.out.printf("The enemy hit one of your ships at (%c,%d)\n", hitX, hitY);
+        logger.warn("The enemy hit one of your ships at (%c,%d)\n", hitX, hitY);
       }
     }
 
-    System.out.println("Your board\n" + board);
-    System.out.println("Enemy board\n" + enemyBoard);
+    logger.info("Your board\n" + board);
+    logger.info("Enemy board\n" + enemyBoard);
 
     Scanner scanner = new Scanner(System.in);
     while (true) {
       try {
-        System.out.println("Choose coordinates to attack (X-n)");
+        logger.request("Choose coordinates to attack (X-n)");
         String[] tokens = scanner.nextLine().split("-", 2);
         x = tokens[0].charAt(0);
         y = Integer.parseInt(tokens[1]);
         board.getCell(x, y);
-        return new String[] {"PLAY", String.valueOf(x), String.valueOf(y)};
+        return new String[] {Message.PLAY.name(), String.valueOf(x), String.valueOf(y)};
       } catch (IndexOutOfBoundsException e) {
-        System.out.println("Out of bound");
+        logger.warn("Out of bound");
       } catch (Exception e) {
-        System.out.println("Follow format : A-5");
+        logger.warn("Follow format : A-5");
       }
     }
   }

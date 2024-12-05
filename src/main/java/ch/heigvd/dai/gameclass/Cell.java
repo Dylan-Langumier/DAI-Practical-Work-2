@@ -1,7 +1,7 @@
 package ch.heigvd.dai.gameclass;
 
 public class Cell {
-  private ShipType type;
+  private final ShipType type;
   private boolean isHit;
 
   public Cell(ShipType type) {
@@ -25,12 +25,17 @@ public class Cell {
     isHit = true;
   }
 
+  public boolean hasShip() {
+    return type != ShipType.NONE;
+  }
+
   public String toString() {
-    if (type == ShipType.NONE) {
-      if (isHit) return "0";
-      return "~";
+    if (!hasShip()) {
+      return isHit ? "0" : "~";
     }
-    if (isHit) return "X";
+    if (isHit) {
+      return "X";
+    }
     return String.valueOf(type.getSize());
   }
 }

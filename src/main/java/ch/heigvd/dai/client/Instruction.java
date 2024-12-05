@@ -1,13 +1,25 @@
 package ch.heigvd.dai.client;
 
+import ch.heigvd.dai.Logger;
 import ch.heigvd.dai.gameclass.Board;
 import java.util.HashMap;
 
 public abstract class Instruction {
+  protected enum Message {
+    PLACE,
+    GAME_STARTED,
+    PLAY,
+    FEEDBACK,
+    GAME_OVER,
+    ERROR,
+    WAIT
+  }
+
   private static final HashMap<String, Instruction> strToInstr = HashMap.newHashMap(6);
-  static boolean lock = false;
+  protected final Logger logger;
+  private static boolean lock = false;
   protected static Board board, enemyBoard;
-  static Instruction previous_instruction = null;
+  protected static Instruction previous_instruction = null;
   static char x;
   static int y;
 
@@ -17,8 +29,9 @@ public abstract class Instruction {
     return strToInstr.get(message[0]).execute(arguments);
   }
 
-  public Instruction(String key) {
-    strToInstr.put(key, this);
+  protected Instruction(Message key) {
+    strToInstr.put(key.name(), this);
+    logger = new Logger("Instruction-" + key.name());
   }
 
   protected abstract String[] execute(String[] arguments);

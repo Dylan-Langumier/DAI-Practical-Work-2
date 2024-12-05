@@ -22,8 +22,7 @@ public class GameManager {
   private void tryToStartGame() {
     synchronized (mutex) {
       if (waiting.size() >= 2) {
-        ServerPlayer p1 = waiting.pop();
-        ServerPlayer p2 = waiting.pop();
+        ServerPlayer p1 = waiting.pop(), p2 = waiting.pop();
         try {
           p1.startGameWith(p2);
           p2.startGameWith(p1);

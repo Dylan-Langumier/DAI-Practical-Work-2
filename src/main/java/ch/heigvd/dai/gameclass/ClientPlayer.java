@@ -13,17 +13,17 @@ public class ClientPlayer extends BasePlayer {
 
   @Override
   public void run() {
-    System.out.println("[Client] : starting");
+    logger.info("Starting");
 
-    System.out.println("Choose a name");
+    logger.request("Choose a name");
     Scanner in = new Scanner(System.in);
     name = in.nextLine();
 
     // joins the server
     try {
-      send("JOIN", name);
+      send(Message.JOIN, name);
     } catch (IOException e) {
-      System.err.println("[Client] : " + e.getMessage());
+      logger.error(e.getMessage());
     }
 
     board = new Board();
@@ -39,11 +39,10 @@ public class ClientPlayer extends BasePlayer {
         }
 
       } catch (IOException e) {
-        System.out.println("[Client] : " + e.getMessage());
+        logger.error(e.getMessage());
         break;
       }
     }
-
-    System.out.println("[Client] : stopping");
+    logger.info("Stopping");
   }
 }
