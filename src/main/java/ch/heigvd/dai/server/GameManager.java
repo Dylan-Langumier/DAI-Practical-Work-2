@@ -3,6 +3,7 @@ package ch.heigvd.dai.server;
 import ch.heigvd.dai.gameclass.ServerPlayer;
 import java.io.IOException;
 import java.util.ArrayDeque;
+import java.util.Random;
 
 public class GameManager {
   ArrayDeque<ServerPlayer> waiting = new ArrayDeque<>();
@@ -22,20 +23,15 @@ public class GameManager {
   private void tryToStartGame() {
     synchronized (mutex) {
       if (waiting.size() >= 2) {
-        ServerPlayer p1 = waiting.pop(), p2 = waiting.pop();
+        ServerPlayer[] players = new ServerPlayer[]{waiting.pop(), waiting.pop()};
         try {
-          p1.startGameWith(p2);
-          p2.startGameWith(p1);
-          p1.start();
+          players[0].startGameWith(players[1]);
+          players[1].startGameWith(players[0]);
+          Random random = new Random();
+          players[random.nextInt(players.length)].start();
         } catch (IOException ignore) {
         }
       }
-    }
-  }
-
-  public void cancel(ServerPlayer serverPlayer) {
-    synchronized (mutex) {
-      waiting.remove(serverPlayer);
     }
   }
 }

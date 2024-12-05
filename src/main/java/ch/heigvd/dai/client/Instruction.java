@@ -31,7 +31,7 @@ public abstract class Instruction {
 
   protected Instruction(Message key) {
     strToInstr.put(key.name(), this);
-    logger = new Logger("Instruction-" + key.name());
+    logger = new Logger("Instruction (" + key.name() + ")");
   }
 
   protected abstract String[] execute(String[] arguments);
