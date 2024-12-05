@@ -34,10 +34,4 @@ public class GameManager {
       }
     }
   }
-
-  public void cancel(ServerPlayer serverPlayer) {
-    synchronized (mutex) {
-      waiting.remove(serverPlayer);
-    }
-  }
 }
