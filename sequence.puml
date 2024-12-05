@@ -1,0 +1,91 @@
+@startuml functional-example
+
+title "Functional example"
+participant "Player 1" as p1
+participant "Server" as s
+participant "Player 2" as p2
+
+== Initial Connection ==
+
+note over p1, p2
+The socket is instantiated and the connection is
+automatically established.
+end note
+
+p1->s : Establish connection
+p1<-->s : Connection established
+
+p1->s: JOIN Melody
+s->p1: OK
+
+p2->s : Establish connection
+p2<-->s : Connection established
+
+p2->s: JOIN bob
+s->p2: OK
+
+note over p1, p2
+For simplicity sake, the messages here are sent sequentially, 
+but parallelism is entirely possible
+end note 
+s->p1: PLACE:CARRIER
+p1 ->x s: PLACE:A:1:LEFT\n(halted by client)
+p1 -> p1: Invalid placement
+p1 -> s: PLACE:A:1:RIGHT
+s -> p1: PLACE:BATTLESHIP
+p1 ->x s: PLACE:1:A
+p1 -> p1: Follow format A:5:RIGHT
+== P1 placed all their ships ==
+note over p1, p2
+Let's assume P2 finishes placing their ships first
+end note
+s -> p2: WAIT
+s -> p1: PLACE:PATROLLER
+p1 -> s: PLACE:H:4:BOTTOM
+s -> p1: WAIT
+
+== Game start ==
+note over p1, p2
+Once the server sent the GAME_STARTED messages, it chooses a
+random player to start. Let's assume P1 in our case.
+end note
+
+s->p1: PLAY
+p1->s: PLAY:A:10
+s->p1: FEEDBACK:MISS
+
+s->p2: PLAY:A:10
+p2->s: PLAY:E:5
+s->p2: FEEDBACK:HIT
+
+s->p1: PLAY:E:5
+p1->s: PLAY:A:10
+s->p1: ERROR:ALREADY_HIT
+s->p1: PLAY:A:10
+p1->s: PLAY:Z:26
+s->p1: ERROR:OUT_OF_BOUNDS
+s->p1: PLAY:A:10
+
+== All ships hit ==
+s->p2: PLAY:A:10 \n(P1 is not very smart)
+p2->s: PLAY:D:3
+s->p2: FEEDBACK:HIT
+s->p2: GAME_OVER:WON
+s->p1: GAME_OVER:LOST
+
+== Quit ==
+note over p1, p2
+Just as for the connection establishment, no
+formal message is sent to the server when
+disconnecting.
+
+The socket is closed by the client and the
+connection is automatically closed.
+end note
+
+p1->p1: Close the connection
+p1<-->s: The connection is closed
+
+p2->p2: Close the connection
+p2<-->s: The connection is closed
+@enduml
