@@ -22,6 +22,10 @@ the clients initiates and close the communication.
 - GAME_OVER:\<WIN/LOSE>
 - ERROR:\<message>
 
+PLACE is used by the server to tell the client which ship to place and by the client in it's reply
+
+Same goes for PLAY whih is also used by the server to ask the client to play and indiquate the adversary's last move
+
 ### Example
 
 Client starts asks the user it's name and sends  
@@ -38,6 +42,8 @@ WAIT
 
 When a second player is ready server sends  
 START_GAME:TheProfessor
+
+And sends PLAY to the first player
 
 When a player needs to play server sends  
 PLAY:A:5  
