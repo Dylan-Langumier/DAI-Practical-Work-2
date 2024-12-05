@@ -34,5 +34,6 @@ public abstract class Instruction {
     new Feedback();
     new GameOver();
     new Error();
+    new Wait();
   }
 }

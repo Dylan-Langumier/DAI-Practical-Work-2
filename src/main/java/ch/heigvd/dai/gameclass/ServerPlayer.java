@@ -39,10 +39,8 @@ public class ServerPlayer extends BasePlayer implements Runnable {
     gameOver = true;
     adversary = null;
     String argument;
-    if(victory)
-      argument = "WIN";
-    else
-      argument = "LOSE";
+    if (victory) argument = "WIN";
+    else argument = "LOSE";
     try {
       send("GAME_OVER", argument);
     } catch (IOException ignore) {
@@ -95,12 +93,13 @@ public class ServerPlayer extends BasePlayer implements Runnable {
   }
 
   private void play() throws IOException {
+    send("WAIT");
     gameOver = false;
     while (!gameOver) {
       // wait for your turn
       if (!mustPlay) {
         try {
-          Thread.sleep(100);
+          Thread.sleep(500);
         } catch (InterruptedException e) {
           System.err.printf("[Server] : %s%n", e.getMessage());
         }
@@ -141,7 +140,8 @@ public class ServerPlayer extends BasePlayer implements Runnable {
       }
 
       if (enemyBoard.allShipsSank()) {
-        System.out.printf("[%s@%s] : Won against %s", name, socket.getInetAddress(),adversary.getName());
+        System.out.printf(
+            "[%s@%s] : Won against %s", name, socket.getInetAddress(), adversary.getName());
         adversary.endGame(false);
         endGame(true);
       } else {
@@ -153,10 +153,10 @@ public class ServerPlayer extends BasePlayer implements Runnable {
   private void initializeBoard() throws IOException {
     final ShipType[] ships =
         new ShipType[] {
-          // ShipType.CARRIER,
-          // ShipType.BATTLESHIP,
-          // ShipType.DESTROYER,
-          // ShipType.SUBMARINE,
+          ShipType.CARRIER,
+          ShipType.BATTLESHIP,
+          ShipType.DESTROYER,
+          ShipType.SUBMARINE,
           ShipType.PATROLLER
         };
     board = new Board();
