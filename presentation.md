@@ -58,33 +58,37 @@ Dylan Langumier & Raphael Perret
 
 Simple multiplayer only command line Battleship game
 
+It is shipped with docker for easy use on ny platform
+
 ![bg right:40%][fig1]
 
 ## Usage
 
 **Server**
 ```bash
-java -jar target/Battleship-1.0.0.jar server (--port <port>) (--max_games <maxGames>)
+docker run -p 6433:6433 --rm ghcr.io/rp2709/bam server (--port <port>) (--max_games <maxGames>)
 ```
+
+The -p 6433:6433 exposes the default port and must be changed if a different port is used
 
 **Client**
 ```bash
-java -jar target/Battleship-1.0.0.jar client --host <host> (--port <port>)
+docker run --rm ghcr.io/rp2709/bam client --host <host> (--port <port>)
 ```
 
 ## Example 1
 Start server using default port
 ```bash
-java -jar target/Battleship-1.0.0.jar server
-[SERVER] : Starting
-[SERVER] : Listening on port 6433, Allowing up to 10 simultaneous games
+docker run -p 6433:6433 --rm ghcr.io/rp2709/bam server
+Starting
+Listening on port 6433, Allowing up to 10 simultaneous games
 ```
 
 Start client with server's address and defaul port
 ```bash
-java -jar target/Battleship-1.0.0.jar client --host localhost
+docker run -it --rm ghcr.io/rp2709/bam client --host localhost
 Trying to connect to host localhost at port 6433
-[Client] : starting
+starting
 Choose a name
 ```
 
