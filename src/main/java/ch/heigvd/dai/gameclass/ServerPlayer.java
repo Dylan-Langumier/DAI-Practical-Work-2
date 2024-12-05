@@ -1,7 +1,7 @@
 package ch.heigvd.dai.gameclass;
 
-import ch.heigvd.dai.server.GameManager;
 import ch.heigvd.dai.client.Error.ErrorMessage;
+import ch.heigvd.dai.server.GameManager;
 import java.io.*;
 import java.net.Socket;
 
