@@ -34,12 +34,13 @@ public class Place extends Instruction {
         }
         // send
         return new String[] {
-          Message.PLACE.name(),
-          shipType.name(),
-          String.valueOf(x),
-          String.valueOf(y),
-          orientation.toString(),
-        };
+              Message.PLACE.name(),
+              shipType.name(),
+              String.valueOf(x),
+              String.valueOf(y),
+              orientation.toString(),
+            }
+            .clone();
       } catch (Exception ignore) {
         logger.warn("Follow format : A-5-TOP/BOTTOM/RIGHT/LEFT");
       }

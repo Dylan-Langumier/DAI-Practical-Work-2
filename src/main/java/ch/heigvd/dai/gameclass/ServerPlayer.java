@@ -88,7 +88,7 @@ public class ServerPlayer extends BasePlayer implements Runnable {
   }
 
   private void play() throws IOException {
-    send("WAIT");
+    send(Message.WAIT);
     gameOver = false;
     while (!gameOver) {
       // wait for your turn
@@ -105,8 +105,8 @@ public class ServerPlayer extends BasePlayer implements Runnable {
       logger.info("Player %s must play", name);
       String[] message = receive();
       Message command = Message.valueOf(message[0]);
-      logger.info("Player %s sent cmd : %s x=%s y=%s", name, message[0], message[1], message[2]);
-      if (command != Message.JOIN || message.length != 3) {
+      logger.info("Player %s sent cmd : %s", name, String.join(DELIMITER, message));
+      if (command != Message.PLAY || message.length != 3) {
         logger.error("Player must play with PLAY:<x>:<y>");
         send(Message.ERROR);
         continue;
