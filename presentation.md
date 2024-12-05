@@ -113,3 +113,9 @@ The player can now follow instructions first choosing a name, then placing he/he
 - gameclasses : only game/protocol related code
 
 ![bg right:30%][fig3]
+
+## Question
+
+\
+\
+How could we have managed docker ports better?
