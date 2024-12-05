@@ -1,10 +1,10 @@
 package ch.heigvd.dai.gameclass;
 
-class Cell {
-  private ShipType type;
+public class Cell {
+  private final ShipType type;
   private boolean isHit;
 
-  protected Cell(ShipType type) {
+  public Cell(ShipType type) {
     this.type = type;
     this.isHit = false;
   }
@@ -13,7 +13,7 @@ class Cell {
     this(ShipType.NONE);
   }
 
-  protected ShipType getShipType() {
+  public ShipType getShipType() {
     return type;
   }
 
@@ -21,6 +21,21 @@ class Cell {
     return isHit;
   }
 
-  public void hit(){isHit = true;}
-}
+  public void hit() {
+    isHit = true;
+  }
 
+  public boolean hasShip() {
+    return type != ShipType.NONE;
+  }
+
+  public String toString() {
+    if (!hasShip()) {
+      return isHit ? "0" : "~";
+    }
+    if (isHit) {
+      return "X";
+    }
+    return String.valueOf(type.getSize());
+  }
+}

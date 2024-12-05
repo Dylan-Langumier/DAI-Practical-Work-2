@@ -4,9 +4,8 @@ import ch.heigvd.dai.server.GameManager;
 import java.io.*;
 import java.net.Socket;
 
-public class ServerPlayer extends BasePlayer {
+public class ServerPlayer extends BasePlayer implements Runnable {
   private final GameManager manager;
-
   private ServerPlayer adversary;
 
   public ServerPlayer(Socket socket, GameManager manager) {
@@ -14,160 +13,180 @@ public class ServerPlayer extends BasePlayer {
     this.manager = manager;
   }
 
-  public void setEnemyBoard(Board enemyBoard){this.enemyBoard = enemyBoard;}
+  public void setEnemyBoard(Board enemyBoard) {
+    this.enemyBoard = enemyBoard;
+  }
 
-  public void requestStop() {stopRequested = true;}
-
-  public void giveTurn(char x, int y) throws IOException{
-    send("YOUR_TURN:" + x + ":" + y);
+  public void giveTurn(char x, int y) throws IOException {
+    logger.info("Player %s is now playing", name);
+    send(Message.PLAY, x, y);
     mustPlay = true;
   }
 
-  public void start(){
+  public void start() throws IOException {
+    send(Message.PLAY);
     mustPlay = true;
   }
 
-  public void startGameWith(ServerPlayer adversary){
+  public void startGameWith(ServerPlayer adversary) throws IOException {
     this.adversary = adversary;
     adversary.setEnemyBoard(board);
+    send(Message.GAME_STARTED, adversary.getName());
   }
 
-  public void endGame(){
+  public void endGame(boolean victory) {
     gameOver = true;
-    System.out.printf("%s sank all your ships and won the game. You suck.", adversary.getName());
     adversary = null;
-    try{send("LOSE");}catch (IOException ignore){}
+    try {
+      send(Message.GAME_OVER, victory ? "WIN" : "LOSE");
+    } catch (IOException ignore) {
+    }
   }
 
   public void run() {
-    System.out.printf("[Player@%s] : Connected %n", socket.getInetAddress());
+    logger.info("[%s@%s] : Connected", name, socket.getInetAddress());
 
     // wait for join
-    try{
+    try {
       waitForJoin();
-    }catch (IOException e){
-      System.err.println("[Server] : " + e.getMessage());
+    } catch (IOException e) {
+      logger.error(e.getMessage());
       return;
     }
 
-    while(!stopRequested){
+    while (!stopRequested) {
       // populate board
-      try{
+      try {
         initializeBoard();
-      }catch (IOException e){
-        System.err.println("[Server] : " + e.getMessage());
+      } catch (IOException e) {
+        logger.error(e.getMessage());
       }
 
       // request a game with another player
       if (!manager.request(this)) {
-        System.err.printf(
-                "[Player@%s] : Game manager refused game request \n", socket.getInetAddress());
+        logger.error("[%s@%s] : Game manager refused game request", name, socket.getInetAddress());
         return;
       }
-      System.out.printf("[Player@%s] : Game requested successfully \n", socket.getInetAddress());
+      logger.info("[%s@%s] : Game requested successfully", name, socket.getInetAddress());
 
       // play
-      try{
+      try {
         play();
-      }catch (IOException e){
-        System.err.println("[Server] : " + e.getMessage());
+      } catch (IOException e) {
+        logger.error(e.getMessage());
+        adversary.endGame(true);
+        break;
       }
     }
 
     try {
       socket.close();
     } catch (IOException e) {
-      System.out.println(e.getMessage());
+      logger.error(e.getMessage());
     }
-    System.out.printf("[Player@%s] : Disconnected %n", socket.getInetAddress());
+    logger.info("[%s@%s] : Disconnected", name, socket.getInetAddress());
   }
 
-  private void play() throws IOException{
+  private void play() throws IOException {
+    send("WAIT");
     gameOver = false;
-    while(!gameOver){
+    while (!gameOver) {
       // wait for your turn
-      if(!mustPlay){
+      if (!mustPlay) {
         try {
-          Thread.sleep(100);
-        }catch(InterruptedException e){
-          System.err.println("[Server] : " + e.getMessage());
+          Thread.sleep(500);
+        } catch (InterruptedException e) {
+          logger.error(e.getMessage());
         }
         continue;
       }
-      
+
       // play
+      logger.info("Player %s must play", name);
       String[] message = receive();
-      if(!message[0].equals("JOIN") || message.length != 3) {
-        System.err.println("[Server] : player must play with PLAY:<x>:<y>");
-        send("ERROR:");
+      Message command = Message.valueOf(message[0]);
+      logger.info("Player %s sent cmd : %s x=%s y=%s", name, message[0], message[1], message[2]);
+      if (command != Message.JOIN || message.length != 3) {
+        logger.error("Player must play with PLAY:<x>:<y>");
+        send(Message.ERROR);
         continue;
       }
       char x = message[1].charAt(0);
       int y = Integer.parseInt(message[2]);
-      Cell cell = enemyBoard.getCell(x,y);
-      if(cell.isHit()){
-        send("ERROR:");
+      Cell cell;
+      try {
+        cell = enemyBoard.getCell(x, y);
+      } catch (IndexOutOfBoundsException e) {
+        logger.error("Coordinates out of bounds");
+        send(Message.ERROR, "OUT_OF_BOUND");
+        continue;
+      }
+      if (cell.isHit()) {
+        send(Message.ERROR, "ALREADY_HIT");
         continue;
       }
       cell.hit();
       mustPlay = false;
 
-      if(cell.getShipType() == ShipType.NONE){
-        send("MISS");
-      }else{
-        send("HIT");
-      }
+      send(Message.FEEDBACK, cell.hasShip() ? "HIT" : "MISS");
 
-      if(enemyBoard.allShipsSank()){
-        System.out.printf("You beat %s, well played",adversary.getName());
-        adversary.endGame();
-        gameOver = true;
-        adversary = null;
-      }else{
-        adversary.giveTurn(x,y);
+      if (enemyBoard.allShipsSank()) {
+        logger.info("[%s@%s] : Won against %s", name, socket.getInetAddress(), adversary.getName());
+        adversary.endGame(false);
+        endGame(true);
+      } else {
+        adversary.giveTurn(x, y);
       }
     }
   }
 
-  private void initializeBoard() throws IOException{
-    final ShipType[] ships = new ShipType[]{ShipType.CARRIER,ShipType.BATTLESHIP,ShipType.DESTROYER,ShipType.SUBMARINE,ShipType.PATROLER};
+  private void initializeBoard() throws IOException {
+    final ShipType[] ships =
+        new ShipType[] {
+          ShipType.CARRIER,
+          ShipType.BATTLESHIP,
+          ShipType.DESTROYER,
+          ShipType.SUBMARINE,
+          ShipType.PATROLLER
+        };
     board = new Board();
     int toPlace = 0;
-    while(toPlace < ships.length){
+    while (toPlace < ships.length) {
       // tell client to place a boat
-      send("PLACE:" + ships[toPlace++]);
+      send(Message.PLACE, ships[toPlace++].toString());
 
       // read answer
       String[] message = receive();
-      if(!message[0].equals("PLACE") || message.length != 5) {
-        System.err.println("[Server] : player expected to use PLACE:<ShipType>:<x>:<y>:<orientation>");
-        send("ERROR:");
+      Message command = Message.valueOf(message[0]);
+      if (command != Message.PLACE || message.length != 5) {
+        logger.error("Player expected to use %s:<ShipType>:<x>:<y>:<orientation>%n", Message.PLACE);
+        send(Message.ERROR);
         continue;
       }
       try {
         ShipType shipType = ShipType.valueOf(message[1]);
         char x = message[2].charAt(0);
         int y = Integer.parseInt(message[3]);
-        ORIENTATION orientation = ORIENTATION.valueOf(message[4]);
+        Orientation orientation = Orientation.valueOf(message[4]);
 
-        if(!board.place(shipType,x,y,orientation)){
-          System.err.println("[Server] : Invalid placement");
+        if (!board.place(shipType, x, y, orientation)) {
+          logger.error("Invalid placement for %s", name);
         }
-      }catch (Exception e){
-        System.err.println("[Server] : Invalid arguments");
+      } catch (Exception e) {
+        logger.error("Invalid arguments for %s", name);
       }
     }
-
   }
 
-  private void waitForJoin() throws IOException{
+  private void waitForJoin() throws IOException {
     int attempts = 10;
-    while(attempts > 0){
+    while (attempts > 0) {
       --attempts;
       String[] message = receive();
-      if(!message[0].equals("JOIN") || message.length != 2) {
-        System.err.println("[Server] : player must start with JOIN:<name>");
-        send("ERROR:");
+      Message command = Message.valueOf(message[0]);
+      if (command != Message.JOIN || message.length != 2) {
+        logger.error("Player must start with %s:<name>", Message.JOIN);
+        send(Message.ERROR);
         continue;
       }
       name = message[1];

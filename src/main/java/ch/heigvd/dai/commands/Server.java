@@ -13,9 +13,16 @@ public class Server implements Callable<Integer> {
       defaultValue = "6433")
   protected int port;
 
+  @CommandLine.Option(
+      names = {"-m", "--max_games"},
+      description =
+          "Maximum number of simultaneous games hosted by the server (default : ${DEFAULT-VALUE}).",
+      defaultValue = "10")
+  protected int maxGames;
+
   @Override
   public Integer call() {
-    ListenServer.run(port, 10);
+    ListenServer.run(port, maxGames);
     return 0;
   }
 }

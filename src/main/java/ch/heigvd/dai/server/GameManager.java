@@ -1,7 +1,7 @@
 package ch.heigvd.dai.server;
 
 import ch.heigvd.dai.gameclass.ServerPlayer;
-
+import java.io.IOException;
 import java.util.ArrayDeque;
 
 public class GameManager {
@@ -19,14 +19,16 @@ public class GameManager {
     return true;
   }
 
-  private void tryToStartGame(){
+  private void tryToStartGame() {
     synchronized (mutex) {
       if (waiting.size() >= 2) {
-        ServerPlayer p1 = waiting.pop();
-        ServerPlayer p2 = waiting.pop();
-        p1.startGameWith(p2);
-        p2.startGameWith(p1);
-        p1.start();
+        ServerPlayer p1 = waiting.pop(), p2 = waiting.pop();
+        try {
+          p1.startGameWith(p2);
+          p2.startGameWith(p1);
+          p1.start();
+        } catch (IOException ignore) {
+        }
       }
     }
   }

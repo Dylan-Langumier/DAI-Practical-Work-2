@@ -10,6 +10,7 @@ public class Client implements Callable<Integer> {
   @CommandLine.Option(
       names = {"-H", "--host"},
       description = "Host to connect to.",
+      defaultValue = "localhost",
       required = true)
   protected String host;
 
