@@ -33,7 +33,7 @@ public class Play extends Instruction {
         x = tokens[0].charAt(0);
         y = Integer.parseInt(tokens[1]);
         board.getCell(x, y);
-        return new String[] {Message.PLAY.name(), String.valueOf(x), String.valueOf(y)};
+        return new String[] {Message.PLAY.name(), String.valueOf(x), String.valueOf(y)}.clone();
       } catch (IndexOutOfBoundsException e) {
         logger.warn("Out of bound");
       } catch (Exception e) {

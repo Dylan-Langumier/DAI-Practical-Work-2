@@ -15,9 +15,10 @@ public abstract class BasePlayer {
     PLACE,
     JOIN,
     GAME_OVER,
+    WAIT
   }
 
-  private static final String DELIMITER = ":";
+  protected static final String DELIMITER = ":";
   protected final Socket socket;
   private BufferedWriter out;
   private BufferedReader in;

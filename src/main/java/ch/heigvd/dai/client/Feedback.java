@@ -26,6 +26,7 @@ public class Feedback extends Instruction {
     if (result == Result.HIT) {
       enemyBoard.setCell(x, y, new Cell(ShipType.PATROLLER));
     }
+    enemyBoard.getCell(x, y).hit();
     logger.info(result.name());
     logger.info("%nEnemy board%n%s", enemyBoard);
 
