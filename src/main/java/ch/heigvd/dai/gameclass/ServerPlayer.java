@@ -1,6 +1,7 @@
 package ch.heigvd.dai.gameclass;
 
 import ch.heigvd.dai.server.GameManager;
+import ch.heigvd.dai.client.Error.ErrorMessage;
 import java.io.*;
 import java.net.Socket;
 
@@ -108,7 +109,7 @@ public class ServerPlayer extends BasePlayer implements Runnable {
       logger.info("Player %s sent cmd : %s", name, String.join(DELIMITER, message));
       if (command != Message.PLAY || message.length != 3) {
         logger.error("Player must play with PLAY:<x>:<y>");
-        send(Message.ERROR);
+        send(Message.ERROR, ErrorMessage.FORMAT);
         continue;
       }
       char x = message[1].charAt(0);
@@ -118,11 +119,11 @@ public class ServerPlayer extends BasePlayer implements Runnable {
         cell = enemyBoard.getCell(x, y);
       } catch (IndexOutOfBoundsException e) {
         logger.error("Coordinates out of bounds");
-        send(Message.ERROR, "OUT_OF_BOUND");
+        send(Message.ERROR, ErrorMessage.OUT_OF_BOUNDS);
         continue;
       }
       if (cell.isHit()) {
-        send(Message.ERROR, "ALREADY_HIT");
+        send(Message.ERROR, ErrorMessage.ALREADY_HIT);
         continue;
       }
       cell.hit();
@@ -160,7 +161,7 @@ public class ServerPlayer extends BasePlayer implements Runnable {
       Message command = Message.valueOf(message[0]);
       if (command != Message.PLACE || message.length != 5) {
         logger.error("Player expected to use %s:<ShipType>:<x>:<y>:<orientation>%n", Message.PLACE);
-        send(Message.ERROR);
+        send(Message.ERROR, ErrorMessage.FORMAT);
         continue;
       }
       try {
@@ -186,7 +187,7 @@ public class ServerPlayer extends BasePlayer implements Runnable {
       Message command = Message.valueOf(message[0]);
       if (command != Message.JOIN || message.length != 2) {
         logger.error("Player must start with %s:<name>", Message.JOIN);
-        send(Message.ERROR);
+        send(Message.ERROR, ErrorMessage.STARTING_COMMAND);
         continue;
       }
       name = message[1];
