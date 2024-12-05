@@ -23,7 +23,7 @@ public class GameManager {
   private void tryToStartGame() {
     synchronized (mutex) {
       if (waiting.size() >= 2) {
-        ServerPlayer[] players = new ServerPlayer[]{waiting.pop(), waiting.pop()};
+        ServerPlayer[] players = new ServerPlayer[] {waiting.pop(), waiting.pop()};
         try {
           players[0].startGameWith(players[1]);
           players[1].startGameWith(players[0]);

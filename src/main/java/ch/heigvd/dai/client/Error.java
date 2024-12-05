@@ -7,6 +7,7 @@ public class Error extends Instruction {
     FORMAT,
     STARTING_COMMAND
   }
+
   public Error() {
     super(Message.ERROR);
   }
@@ -19,7 +20,7 @@ public class Error extends Instruction {
         case OUT_OF_BOUNDS -> logger.error("Out of bounds");
         case FORMAT -> logger.error("Wrong format");
         case STARTING_COMMAND -> logger.error("Wrong starting command");
-        case ALREADY_HIT-> logger.error("Space was already hit");
+        case ALREADY_HIT -> logger.error("Space was already hit");
       }
     } catch (IllegalArgumentException e) {
       logger.error("SERVER ERROR");
