@@ -50,24 +50,24 @@ Once the server sent the GAME_STARTED messages, it chooses a
 random player to start. Let's assume P1 in our case.
 end note
 
-s->p1: YOUR_TURN
+s->p1: PLAY
 p1->s: PLAY:A:10
 s->p1: FEEDBACK:MISS
 
-s->p2: YOUR_TURN:A:10
+s->p2: PLAY:A:10
 p2->s: PLAY:E:5
 s->p2: FEEDBACK:HIT
 
-s->p1: YOUR_TURN:E:5
+s->p1: PLAY:E:5
 p1->s: PLAY:A:10
 s->p1: ERROR:ALREADY_HIT
-s->p1: YOUR_TURN:A:10
+s->p1: PLAY:A:10
 p1->s: PLAY:Z:26
 s->p1: ERROR:OUT_OF_BOUNDS
-s->p1: YOUR_TURN:A:10
+s->p1: PLAY:A:10
 
 == All ships hit ==
-s->p2: YOUR_TURN:A:10 \n(P1 is not very smart)
+s->p2: PLAY:A:10 \n(P1 is not very smart)
 p2->s: PLAY:D:3
 s->p2: FEEDBACK:HIT
 s->p2: GAME_OVER:WON
