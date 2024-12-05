@@ -129,7 +129,7 @@ Actually run the client
 java -jar ./target/Battleship-1.0.0.jar client -H 77.77.77.77 
 
 # if you're using docker:
-docker run --rm ghcr.io/rp2709/bam client -H 77.77.77.77
+docker run --rm -it ghcr.io/rp2709/bam client -H 77.77.77.77
 ```
 The instructions to play the game will be displayed then if the connection was successful.
 
