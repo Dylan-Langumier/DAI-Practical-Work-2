@@ -5,6 +5,9 @@ FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY target/Battleship-1.0.0.jar /app
 
+#Expose necessary port
+EXPOSE 6433
+
 # Entrypoint
 ENTRYPOINT ["java","-jar","Battleship-1.0.0.jar"]
 
